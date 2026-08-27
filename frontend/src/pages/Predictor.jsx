@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { api, POWERTRAIN_COLOR, POWERTRAIN_TONE } from "../api";
+import { api, PALETTE, POWERTRAIN_COLOR, POWERTRAIN_TONE } from "../api";
 import Badge from "../components/Badge";
 import Chart from "../components/Chart";
 import { useCountUp } from "../useCountUp";
@@ -10,10 +10,31 @@ const POWERTRAINS = [
   { code: "PHEV", label: "Plug-in Hybrid" },
   { code: "EV", label: "Fully Electric" },
 ];
+const MODELS = [
+  { code: "extra_trees", label: "Extra Trees (most accurate)" },
+  { code: "physics_hybrid", label: "Physics-informed hybrid" },
+];
 const VEHICLE_CLASSES = ["Compact", "Mid-size", "Large/SUV"];
 const ROUTE_TYPES = ["Urban", "Mixed", "Highway"];
 const TERRAINS = ["Flat", "Rolling", "Hilly"];
 const STYLES = ["Calm", "Normal", "Spirited"];
+
+// Fixed, meaning-based colour per physical mechanism - not by rank, so a
+// term keeps its colour no matter how the breakdown is sorted.
+const PHYSICS_TERM_COLOR = {
+  rolling: PALETTE.blue,
+  idle: PALETTE.orange,
+  kinetic: PALETTE.aqua,
+  aerodynamic: PALETTE.green,
+  potential: PALETTE.grey,
+};
+const PHYSICS_TERM_LABEL = {
+  rolling: "Rolling resistance",
+  idle: "Idle burn",
+  kinetic: "Acceleration",
+  aerodynamic: "Aerodynamic drag",
+  potential: "Climbing",
+};
 
 function PillSelect({ label, options, value, onChange }) {
   return (
@@ -41,6 +62,7 @@ function PillSelect({ label, options, value, onChange }) {
 
 export default function Predictor() {
   const [powertrain, setPowertrain] = useState("ICE");
+  const [modelChoice, setModelChoice] = useState("extra_trees");
   const [distance, setDistance] = useState(10);
   const [vehicleClass, setVehicleClass] = useState("Mid-size");
   const [routeType, setRouteType] = useState("Mixed");
@@ -61,6 +83,7 @@ export default function Predictor() {
         route_type: routeType,
         terrain,
         driving_style: style,
+        model: modelChoice,
       });
       setResult(data);
     } catch (e) {
@@ -89,6 +112,10 @@ export default function Predictor() {
       <div className="predictor-grid">
         <div className="card card-pad rise-in" style={{ "--delay": "0.15s" }}>
           <PillSelect label="Powertrain" options={POWERTRAINS} value={powertrain} onChange={setPowertrain} />
+
+          {(powertrain === "ICE" || powertrain === "HEV") && (
+            <PillSelect label="Model" options={MODELS} value={modelChoice} onChange={setModelChoice} />
+          )}
 
           <div className="field">
             <label className="field-label">Trip distance — {distance} km</label>
@@ -119,7 +146,9 @@ export default function Predictor() {
 
           {result && result.mode === "prediction" && (
             <>
-              <Badge tone={POWERTRAIN_TONE[powertrain]}>Live model prediction</Badge>
+              <Badge tone={POWERTRAIN_TONE[powertrain]}>
+                {result.model === "physics_hybrid" ? "Physics-informed hybrid" : "Live model prediction"}
+              </Badge>
               <p className="result-value" style={{ color }}>
                 {animatedValue.toFixed(3)} <span className="result-unit">kWh</span>
               </p>
@@ -141,6 +170,31 @@ export default function Predictor() {
                 layout={{ margin: { t: 10, r: 30, b: 40, l: 110 }, height: 140 }}
                 style={{ height: 140 }}
               />
+
+              {result.physics_breakdown && (
+                <div className="physics-breakdown">
+                  <p className="physics-breakdown-label">Where this trip's energy goes</p>
+                  <div className="comp-bar">
+                    {result.physics_breakdown.map((t) => (
+                      <div
+                        key={t.term}
+                        className="comp-segment"
+                        style={{ flexGrow: Math.max(t.share, 0.004), background: PHYSICS_TERM_COLOR[t.term] }}
+                        title={`${PHYSICS_TERM_LABEL[t.term]}: ${(t.share * 100).toFixed(1)}% (${t.kwh} kWh)`}
+                      />
+                    ))}
+                  </div>
+                  <div className="physics-legend">
+                    {result.physics_breakdown.map((t) => (
+                      <div className="physics-legend-item" key={t.term}>
+                        <span className="legend-dot" style={{ background: PHYSICS_TERM_COLOR[t.term] }} />
+                        <span className="physics-legend-name">{PHYSICS_TERM_LABEL[t.term]}</span>
+                        <span className="physics-legend-pct">{(t.share * 100).toFixed(0)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           )}
 
@@ -203,6 +257,26 @@ export default function Predictor() {
         .result-range-note { color: var(--text-muted); }
         .result-explain { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin: 16px 0 20px; }
         .result-stats { display: flex; gap: 32px; margin-bottom: 14px; }
+        .physics-breakdown { margin-top: 20px; }
+        .physics-breakdown-label {
+          font-size: 12px; font-weight: 600; color: var(--text-muted);
+          text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 10px;
+        }
+        .comp-bar {
+          display: flex;
+          height: 28px;
+          border-radius: 8px;
+          overflow: hidden;
+          gap: 2px;
+          background: var(--bg-2);
+        }
+        .comp-segment { min-width: 3px; transition: opacity 0.15s ease; }
+        .comp-segment:hover { opacity: 0.85; }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .physics-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; }
+        .physics-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+        .physics-legend-name { color: var(--text-secondary); }
+        .physics-legend-pct { color: var(--text-primary); font-family: var(--font-mono); font-weight: 700; }
       `}</style>
     </main>
   );

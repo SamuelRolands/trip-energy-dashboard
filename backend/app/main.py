@@ -98,13 +98,18 @@ class PredictRequest(BaseModel):
     route_type: str = Field(pattern="^(Urban|Mixed|Highway)$")
     terrain: str = Field(pattern="^(Flat|Rolling|Hilly)$")
     driving_style: str = Field(pattern="^(Calm|Normal|Spirited)$")
+    model: str = Field(default="extra_trees", pattern="^(extra_trees|physics_hybrid)$")
 
 
 @app.post("/api/predict")
 def predict(request: PredictRequest):
-    """Run a real prediction through the real trained model (ICE/HEV), or
+    """Run a real prediction through a real trained model (ICE/HEV), or
     return honest descriptive fleet statistics (PHEV/EV - see
     model_service.predict for why those two have no live model).
+
+    `model` selects Extra Trees (default, strongest overall) or the
+    physics-informed grey-box hybrid (slightly less accurate, but returns
+    an inspectable breakdown of five physical energy mechanisms).
     """
     return model_service.predict(
         powertrain=request.powertrain,
@@ -113,6 +118,7 @@ def predict(request: PredictRequest):
         route_type=request.route_type,
         terrain=request.terrain,
         driving_style=request.driving_style,
+        model_choice=request.model,
     )
 
 

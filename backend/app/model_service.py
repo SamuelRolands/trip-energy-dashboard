@@ -19,11 +19,17 @@ from pathlib import Path
 import joblib
 import pandas as pd
 
+from . import greybox  # noqa: F401 - required so unpickling greybox_model.joblib resolves
+
 DATA_DIR = Path(__file__).parent / "data"
 
 _model_bundle = joblib.load(DATA_DIR / "final_model.joblib")
 MODEL = _model_bundle["model"]
 FEATURE_COLUMNS: list[str] = _model_bundle["feature_columns"]
+
+_greybox_bundle = joblib.load(DATA_DIR / "greybox_model.joblib")
+GREYBOX_MODEL = _greybox_bundle["model"]
+GREYBOX_FEATURE_COLUMNS: list[str] = _greybox_bundle["feature_columns"]
 
 with open(DATA_DIR / "input_presets.json") as f:
     _presets_raw = json.load(f)
@@ -35,8 +41,10 @@ with open(DATA_DIR / "fleet_stats.json") as f:
 
 # Known model error, from the real final holdout evaluation (Stage 8) -
 # used to build an honest +/- range around a prediction rather than
-# presenting a single number as if it were exact.
-KNOWN_MAE_KWH = 0.4218
+# presenting a single number as if it were exact. Each model gets its own
+# figure since they are not equally accurate (Extra Trees is the stronger
+# of the two - see the Model Performance page).
+KNOWN_MAE_KWH = {"extra_trees": 0.4218, "physics_hybrid": 0.433}
 
 
 def build_feature_vector(
@@ -46,6 +54,7 @@ def build_feature_vector(
     route_type: str,
     terrain: str,
     driving_style: str,
+    feature_columns: list[str] | None = None,
 ) -> pd.DataFrame:
     """Assemble one full 42-column feature row from the simplified inputs."""
     vehicle = PRESETS["vehicle"][vehicle_class]
@@ -102,11 +111,12 @@ def build_feature_vector(
         "positive_ke_per_km": style["positive_ke_per_km"],
     }
 
-    missing = set(FEATURE_COLUMNS) - set(row.keys())
+    columns = feature_columns if feature_columns is not None else FEATURE_COLUMNS
+    missing = set(columns) - set(row.keys())
     if missing:
         raise ValueError(f"build_feature_vector is missing columns the model expects: {missing}")
 
-    return pd.DataFrame([row])[FEATURE_COLUMNS]
+    return pd.DataFrame([row])[columns]
 
 
 def predict(
@@ -116,14 +126,21 @@ def predict(
     route_type: str,
     terrain: str,
     driving_style: str,
+    model_choice: str = "extra_trees",
 ) -> dict:
-    """Run a real prediction through the real trained model.
+    """Run a real prediction through a real trained model.
 
-    Only ICE and HEV are routed to a live model - PHEV has no saved final
-    model (Stage 9 only ran cross-validation) and EV has too few vehicles
-    (3) to support any per-trip claim. Both are handled honestly by
-    returning fleet-average descriptive statistics instead of a fabricated
-    per-trip number.
+    Two models are offered: Extra Trees (the strongest performer overall -
+    see Model Performance) and the physics-informed grey-box hybrid, which
+    trades a little accuracy for a breakdown of *why* - five physical
+    mechanisms with non-negative, inspectable coefficients. Extra Trees is
+    the default; the hybrid is opt-in.
+
+    Only ICE and HEV are routed to a live model, regardless of which one is
+    chosen - PHEV's target measures battery draw only, not total trip
+    energy, and EV has too few vehicles (3) to support any per-trip claim.
+    Both are handled honestly by returning fleet-average descriptive
+    statistics instead of a fabricated per-trip number.
     """
     if powertrain in ("PHEV", "EV"):
         stats = FLEET_STATS[powertrain]
@@ -143,15 +160,39 @@ def predict(
             "n_trips": stats["n_trips"],
         }
 
-    X = build_feature_vector(powertrain, distance_km, vehicle_class, route_type, terrain, driving_style)
-    predicted_kwh = float(MODEL.predict(X)[0])
+    mae = KNOWN_MAE_KWH[model_choice]
 
-    return {
+    if model_choice == "physics_hybrid":
+        X = build_feature_vector(
+            powertrain, distance_km, vehicle_class, route_type, terrain, driving_style,
+            feature_columns=GREYBOX_FEATURE_COLUMNS,
+        )
+        predicted_kwh = float(GREYBOX_MODEL.predict(X)[0])
+        shares = greybox.physics_contribution_shares(GREYBOX_MODEL.physics_, X)
+        breakdown = [
+            {
+                "term": row["term"],
+                "meaning": row["meaning"],
+                "share": round(float(row["share_of_predicted_energy"]), 4),
+                "kwh": round(float(row["total_kwh"]), 3),
+            }
+            for _, row in shares.iterrows()
+        ]
+    else:
+        X = build_feature_vector(powertrain, distance_km, vehicle_class, route_type, terrain, driving_style)
+        predicted_kwh = float(MODEL.predict(X)[0])
+        breakdown = None
+
+    result = {
         "mode": "prediction",
+        "model": model_choice,
         "powertrain": powertrain,
         "predicted_kwh": round(predicted_kwh, 3),
-        "range_low_kwh": round(max(0.0, predicted_kwh - KNOWN_MAE_KWH), 3),
-        "range_high_kwh": round(predicted_kwh + KNOWN_MAE_KWH, 3),
-        "known_mae_kwh": KNOWN_MAE_KWH,
+        "range_low_kwh": round(max(0.0, predicted_kwh - mae), 3),
+        "range_high_kwh": round(predicted_kwh + mae, 3),
+        "known_mae_kwh": mae,
         "confidence": "high",
     }
+    if breakdown is not None:
+        result["physics_breakdown"] = breakdown
+    return result
