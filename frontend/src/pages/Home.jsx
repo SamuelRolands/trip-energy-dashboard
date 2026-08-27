@@ -43,7 +43,11 @@ export default function Home() {
   return (
     <main className="page">
       <div className="hero-wrap">
-        <div className="hero-glow" aria-hidden="true" />
+        <div className="hero-glow" aria-hidden="true">
+          <span className="blob blob-a" />
+          <span className="blob blob-b" />
+          <span className="blob blob-c" />
+        </div>
         <div className="hero-grid">
           <div className="hero">
             <Badge tone="blue">Live model · 384 vehicles · 22.4M readings</Badge>
@@ -69,7 +73,7 @@ export default function Home() {
                   type: "bar",
                   x: progression.map((p) => FS_LABEL[p.feature_set] || p.feature_set),
                   y: progression.map((p) => p.skill),
-                  marker: { color: progression.map((p) => (p.skill >= 0 ? "#3987e5" : "#e66767")) },
+                  marker: { color: progression.map((p) => (p.skill >= 0 ? "#4285f4" : "#ea4335")) },
                   hovertemplate: "%{x}: %{y:.2f}<extra></extra>",
                 }]}
                 layout={{
@@ -140,23 +144,46 @@ export default function Home() {
 
       <style>{`
         .hero-wrap { position: relative; overflow: hidden; margin: 0 -32px; padding: 0 32px; }
-        .hero-glow {
+        .hero-glow { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+        .blob {
           position: absolute;
-          inset: -20% -10% auto -10%;
-          height: 480px;
-          pointer-events: none;
-          z-index: 0;
-          background:
-            radial-gradient(420px 280px at 12% 25%, rgba(57,135,229,0.20), transparent 70%),
-            radial-gradient(380px 260px at 82% 15%, rgba(25,158,112,0.16), transparent 70%);
-          animation: drift 18s ease-in-out infinite alternate;
+          border-radius: 50%;
+          filter: blur(50px);
+          opacity: 0.55;
+          will-change: transform;
         }
-        @keyframes drift {
+        .blob-a {
+          top: -10%; left: -6%;
+          width: 420px; height: 420px;
+          background: radial-gradient(circle, rgba(66,133,244,0.55), transparent 70%);
+          animation: drift-a 16s ease-in-out infinite alternate;
+        }
+        .blob-b {
+          top: 5%; right: -8%;
+          width: 380px; height: 380px;
+          background: radial-gradient(circle, rgba(0,191,165,0.5), transparent 70%);
+          animation: drift-b 20s ease-in-out infinite alternate;
+        }
+        .blob-c {
+          bottom: -25%; left: 30%;
+          width: 320px; height: 320px;
+          background: radial-gradient(circle, rgba(251,188,5,0.28), transparent 70%);
+          animation: drift-c 24s ease-in-out infinite alternate;
+        }
+        @keyframes drift-a {
           from { transform: translate(0, 0) scale(1); }
-          to   { transform: translate(2%, 3%) scale(1.05); }
+          to   { transform: translate(6%, 8%) scale(1.12); }
+        }
+        @keyframes drift-b {
+          from { transform: translate(0, 0) scale(1); }
+          to   { transform: translate(-8%, 6%) scale(1.08); }
+        }
+        @keyframes drift-c {
+          from { transform: translate(0, 0) scale(1); }
+          to   { transform: translate(4%, -6%) scale(1.15); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .hero-glow { animation: none; }
+          .blob-a, .blob-b, .blob-c { animation: none; }
         }
         .hero-grid {
           position: relative;

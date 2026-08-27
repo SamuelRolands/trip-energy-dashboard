@@ -14,26 +14,27 @@
   --text-secondary: #a3adc2;
   --text-muted: #6b7488;
 
-  /* Accent palette - a validated categorical set (CVD-checked, 3:1+ against
-     this surface), not a default AI-dashboard blue/green/orange/red. Fixed
-     assignment, never reshuffled: ICE=blue, HEV=aqua, PHEV=amber, EV=green. */
-  --blue: #3987e5;
-  --blue-dim: #1c5cab;
-  --aqua: #199e70;
-  --aqua-dim: #0f6d4c;
-  --orange: #c98500;
-  --orange-dim: #8f5f00;
-  --green: #008300;
-  --green-dim: #005c00;
-  --red: #e66767;
-  --red-dim: #a83f3f;
+  /* Accent palette - bright, saturated hues (CVD-checked for separation and
+     3:1+ contrast against this surface via the dataviz skill's validator),
+     chosen for visibility over the muted "safe" defaults. Fixed assignment,
+     never reshuffled: ICE=blue, HEV=teal, PHEV=amber, EV=green. */
+  --blue: #4285f4;
+  --blue-dim: #2a5aa8;
+  --aqua: #00bfa5;
+  --aqua-dim: #00806e;
+  --orange: #fbbc05;
+  --orange-dim: #b28603;
+  --green: #34a853;
+  --green-dim: #227438;
+  --red: #ea4335;
+  --red-dim: #a52e25;
 
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
 
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -8px rgba(0, 0, 0, 0.5);
-  --shadow-glow-blue: 0 0 0 1px rgba(57, 135, 229, 0.18), 0 8px 30px -10px rgba(57, 135, 229, 0.28);
+  --shadow-glow-blue: 0 0 0 1px rgba(66, 133, 244, 0.2), 0 8px 30px -10px rgba(66, 133, 244, 0.32);
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
@@ -65,7 +66,7 @@ a {
 }
 
 ::selection {
-  background: rgba(57, 135, 229, 0.3);
+  background: rgba(66, 133, 244, 0.32);
 }
 
 ::-webkit-scrollbar {
@@ -226,15 +227,15 @@ a {
   height: 6px;
   border-radius: 50%;
 }
-.badge-blue { background: rgba(57,135,229,0.14); color: var(--blue); }
+.badge-blue { background: rgba(66,133,244,0.16); color: #7fabf7; }
 .badge-blue .badge-dot { background: var(--blue); }
-.badge-aqua { background: rgba(25,158,112,0.16); color: #4fd8a8; }
+.badge-aqua { background: rgba(0,191,165,0.18); color: #4fe0c9; }
 .badge-aqua .badge-dot { background: var(--aqua); }
-.badge-green { background: rgba(0,131,0,0.18); color: #4fbf4f; }
+.badge-green { background: rgba(52,168,83,0.18); color: #6bcb84; }
 .badge-green .badge-dot { background: var(--green); }
-.badge-orange { background: rgba(201,133,0,0.16); color: #e0a83d; }
+.badge-orange { background: rgba(251,188,5,0.16); color: #fdd352; }
 .badge-orange .badge-dot { background: var(--orange); }
-.badge-red { background: rgba(230,103,103,0.14); color: var(--red); }
+.badge-red { background: rgba(234,67,53,0.16); color: #f27c70; }
 .badge-red .badge-dot { background: var(--red); }
 .badge-dot { animation: pulse-dot 2.4s ease-in-out infinite; }
 @keyframes pulse-dot {
@@ -264,7 +265,7 @@ a {
   color: #fff;
 }
 .btn-primary:hover {
-  background: #4f97ec;
+  background: #5a96f6;
   transform: translateY(-1px);
   box-shadow: var(--shadow-glow-blue);
 }
@@ -336,9 +337,9 @@ a {
   transform: translateY(-1px);
 }
 .pill.active {
-  background: rgba(57,135,229,0.16);
+  background: rgba(66,133,244,0.18);
   border-color: var(--blue);
-  color: #8fb8f0;
+  color: #9dbdf8;
 }
 
 table.data-table {

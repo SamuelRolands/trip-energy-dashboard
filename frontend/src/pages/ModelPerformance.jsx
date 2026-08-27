@@ -57,7 +57,7 @@ export default function ModelPerformance() {
                 type: "bar",
                 x: progression.map((p) => FS_LABEL[p.feature_set] || p.feature_set),
                 y: progression.map((p) => p.skill),
-                marker: { color: progression.map((p) => (p.skill >= 0 ? "#3987e5" : "#e66767")) },
+                marker: { color: progression.map((p) => (p.skill >= 0 ? "#4285f4" : "#ea4335")) },
                 text: progression.map((p) => p.skill.toFixed(2)),
                 textposition: "outside",
                 textfont: { color: "#a3adc2" },

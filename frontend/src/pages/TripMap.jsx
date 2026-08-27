@@ -35,7 +35,7 @@ export default function TripMap() {
 
   const path = detail?.path?.map(([lat, lon]) => [lat, lon]);
   const center = path && path.length ? path[Math.floor(path.length / 2)] : [42.28, -83.74];
-  const color = detail ? POWERTRAIN_COLOR[detail.powertrain] : "#3987e5";
+  const color = detail ? POWERTRAIN_COLOR[detail.powertrain] : "#4285f4";
 
   return (
     <main className="page page-wide">
@@ -82,8 +82,8 @@ export default function TripMap() {
                   attribution='&copy; OpenStreetMap &copy; CARTO'
                 />
                 <Polyline positions={path} pathOptions={{ color, weight: 4, opacity: 0.85 }} />
-                <CircleMarker center={path[0]} radius={6} pathOptions={{ color: "#008300", fillColor: "#008300", fillOpacity: 1 }} />
-                <CircleMarker center={path[path.length - 1]} radius={6} pathOptions={{ color: "#e66767", fillColor: "#e66767", fillOpacity: 1 }} />
+                <CircleMarker center={path[0]} radius={6} pathOptions={{ color: "#34a853", fillColor: "#34a853", fillOpacity: 1 }} />
+                <CircleMarker center={path[path.length - 1]} radius={6} pathOptions={{ color: "#ea4335", fillColor: "#ea4335", fillOpacity: 1 }} />
               </MapContainer>
             )}
           </div>

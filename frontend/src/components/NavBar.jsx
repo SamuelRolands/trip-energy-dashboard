@@ -88,7 +88,7 @@ export default function NavBar() {
         }
         .navbar-link.active {
           color: var(--blue);
-          background: rgba(57,135,229,0.12);
+          background: rgba(66,133,244,0.14);
         }
         @media (max-width: 900px) {
           .navbar-inner { flex-direction: column; align-items: flex-start; padding: 14px 18px; }

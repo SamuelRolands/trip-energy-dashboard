@@ -6,8 +6,8 @@ export default function Logo({ size = 32 }) {
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
       <defs>
         <linearGradient id="gradia-mark" x1="0" y1="32" x2="32" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#3987e5" />
-          <stop offset="1" stopColor="#199e70" />
+          <stop offset="0" stopColor="#4285f4" />
+          <stop offset="1" stopColor="#00bfa5" />
         </linearGradient>
       </defs>
       <rect width="32" height="32" rx="9" fill="url(#gradia-mark)" />
