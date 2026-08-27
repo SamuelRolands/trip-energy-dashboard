@@ -8,5 +8,5 @@ MODEL_PATH="app/data/final_model.joblib"
 
 if [ ! -f "$MODEL_PATH" ]; then
   echo "Downloading trained model from GitHub Releases..."
-  curl -L -o "$MODEL_PATH" "$MODEL_URL"
+  curl -L -A "Mozilla/5.0" -o "$MODEL_PATH" "$MODEL_URL"
 fi
