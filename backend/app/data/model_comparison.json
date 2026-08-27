@@ -1,0 +1,58 @@
+[
+  {
+    "model": "extra_trees",
+    "skill_vs_distance_mean": 0.6709,
+    "MAE_mean": 0.4832,
+    "RMSE_mean": 1.0854,
+    "R2_mean": 0.9043
+  },
+  {
+    "model": "hist_gradient_boosting",
+    "skill_vs_distance_mean": 0.6568,
+    "MAE_mean": 0.4971,
+    "RMSE_mean": 1.1145,
+    "R2_mean": 0.9011
+  },
+  {
+    "model": "random_forest",
+    "skill_vs_distance_mean": 0.6231,
+    "MAE_mean": 0.5206,
+    "RMSE_mean": 1.1834,
+    "R2_mean": 0.8882
+  },
+  {
+    "model": "elasticnet",
+    "skill_vs_distance_mean": 0.565,
+    "MAE_mean": 0.8013,
+    "RMSE_mean": 1.2701,
+    "R2_mean": 0.8729
+  },
+  {
+    "model": "linear_regression",
+    "skill_vs_distance_mean": 0.5629,
+    "MAE_mean": 0.8072,
+    "RMSE_mean": 1.2714,
+    "R2_mean": 0.8724
+  },
+  {
+    "model": "svr",
+    "skill_vs_distance_mean": 0.475,
+    "MAE_mean": 0.5332,
+    "RMSE_mean": 1.3843,
+    "R2_mean": 0.8447
+  },
+  {
+    "model": "knn",
+    "skill_vs_distance_mean": 0.379,
+    "MAE_mean": 0.7998,
+    "RMSE_mean": 1.5125,
+    "R2_mean": 0.8234
+  },
+  {
+    "model": "mean_baseline",
+    "skill_vs_distance_mean": -2.733,
+    "MAE_mean": 2.4976,
+    "RMSE_mean": 3.647,
+    "R2_mean": -0.0195
+  }
+]

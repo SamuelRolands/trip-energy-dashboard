@@ -1,0 +1,37 @@
+[
+  {
+    "model": "extra_trees",
+    "skill_vs_distance": 0.8406,
+    "MAE": 0.4218,
+    "RMSE": 0.6963,
+    "R2": 0.9548
+  },
+  {
+    "model": "greybox_hybrid",
+    "skill_vs_distance": 0.7999,
+    "MAE": 0.433,
+    "RMSE": 0.7802,
+    "R2": 0.9433
+  },
+  {
+    "model": "hist_gradient_boosting",
+    "skill_vs_distance": 0.68,
+    "MAE": 0.4677,
+    "RMSE": 0.9866,
+    "R2": 0.9093
+  },
+  {
+    "model": "linear_regression",
+    "skill_vs_distance": 0.5544,
+    "MAE": 0.7075,
+    "RMSE": 1.1643,
+    "R2": 0.8737
+  },
+  {
+    "model": "distance_only_baseline",
+    "skill_vs_distance": 0.0,
+    "MAE": 1.0692,
+    "RMSE": 1.7442,
+    "R2": 0.7165
+  }
+]

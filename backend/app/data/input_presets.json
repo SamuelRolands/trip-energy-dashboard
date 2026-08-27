@@ -1,0 +1,140 @@
+{
+  "presets": {
+    "vehicle": {
+      "Compact": {
+        "vehicle_weight_kg": 1360.776,
+        "engine_cylinders": 4.0,
+        "engine_displacement_l": 1.8,
+        "engine_is_turbo": 0.0
+      },
+      "Mid-size": {
+        "vehicle_weight_kg": 1587.572,
+        "engine_cylinders": 4.0,
+        "engine_displacement_l": 2.5,
+        "engine_is_turbo": 0.0
+      },
+      "Large/SUV": {
+        "vehicle_weight_kg": 1814.368,
+        "engine_cylinders": 6.0,
+        "engine_displacement_l": 3.5,
+        "engine_is_turbo": 0.0
+      }
+    },
+    "route": {
+      "Urban": {
+        "speed_limit_mean_kmh": 49.008,
+        "speed_limit_std_kmh": 6.77,
+        "speed_limit_min_kmh": 40.0,
+        "speed_limit_max_kmh": 56.0,
+        "intersections_per_km": 1.204,
+        "bus_stops_per_km": 0.557,
+        "traffic_signal_count": 1.0,
+        "stop_sign_count": 0.0
+      },
+      "Mixed": {
+        "speed_limit_mean_kmh": 57.012,
+        "speed_limit_std_kmh": 8.335,
+        "speed_limit_min_kmh": 40.0,
+        "speed_limit_max_kmh": 72.0,
+        "intersections_per_km": 0.976,
+        "bus_stops_per_km": 0.374,
+        "traffic_signal_count": 1.0,
+        "stop_sign_count": 0.0
+      },
+      "Highway": {
+        "speed_limit_mean_kmh": 70.684,
+        "speed_limit_std_kmh": 8.051,
+        "speed_limit_min_kmh": 40.0,
+        "speed_limit_max_kmh": 72.0,
+        "intersections_per_km": 0.644,
+        "bus_stops_per_km": 0.0,
+        "traffic_signal_count": 0.0,
+        "stop_sign_count": 0.0
+      }
+    },
+    "terrain": {
+      "Flat": {
+        "elevation_gain_m": 31.01428,
+        "elevation_loss_m": 30.51113,
+        "gradient_mean": 1e-05,
+        "gradient_std": 0.00182,
+        "gradient_p10": 0.0,
+        "gradient_p90": 0.0,
+        "gradient_abs_mean": 0.00051
+      },
+      "Rolling": {
+        "elevation_gain_m": 45.78872,
+        "elevation_loss_m": 44.08766,
+        "gradient_mean": 1e-05,
+        "gradient_std": 0.00258,
+        "gradient_p10": 0.0,
+        "gradient_p90": 0.0,
+        "gradient_abs_mean": 0.00079
+      },
+      "Hilly": {
+        "elevation_gain_m": 50.02808,
+        "elevation_loss_m": 49.77825,
+        "gradient_mean": -1e-05,
+        "gradient_std": 0.00357,
+        "gradient_p10": -8e-05,
+        "gradient_p90": 0.00037,
+        "gradient_abs_mean": 0.00115
+      }
+    },
+    "style": {
+      "Calm": {
+        "speed_std_kmh": 18.4471,
+        "speed_p25_kmh": 32.625,
+        "speed_p50_kmh": 51.0,
+        "speed_p75_kmh": 59.0,
+        "avg_speed_kmh": 40.8321,
+        "stops_per_km": 0.5468,
+        "idle_fraction": 0.1185,
+        "accel_mean_ms2": -0.0194,
+        "accel_std_ms2": 1.214,
+        "positive_accel_mean_ms2": 1.3088,
+        "negative_accel_mean_ms2": -1.4073,
+        "harsh_accel_count": 3.0,
+        "harsh_decel_count": 4.0,
+        "positive_ke_per_km": 349.4967
+      },
+      "Normal": {
+        "speed_std_kmh": 20.7031,
+        "speed_p25_kmh": 27.5,
+        "speed_p50_kmh": 47.0,
+        "speed_p75_kmh": 58.0,
+        "avg_speed_kmh": 37.507,
+        "stops_per_km": 0.6478,
+        "idle_fraction": 0.1735,
+        "accel_mean_ms2": -0.0273,
+        "accel_std_ms2": 1.3126,
+        "positive_accel_mean_ms2": 1.4282,
+        "negative_accel_mean_ms2": -1.5616,
+        "harsh_accel_count": 9.0,
+        "harsh_decel_count": 11.0,
+        "positive_ke_per_km": 378.7794
+      },
+      "Spirited": {
+        "speed_std_kmh": 21.9209,
+        "speed_p25_kmh": 20.0,
+        "speed_p50_kmh": 42.0,
+        "speed_p75_kmh": 56.0,
+        "avg_speed_kmh": 33.3958,
+        "stops_per_km": 0.8614,
+        "idle_fraction": 0.2179,
+        "accel_mean_ms2": -0.0324,
+        "accel_std_ms2": 1.3628,
+        "positive_accel_mean_ms2": 1.5089,
+        "negative_accel_mean_ms2": -1.6617,
+        "harsh_accel_count": 20.0,
+        "harsh_decel_count": 23.0,
+        "positive_ke_per_km": 407.9389
+      }
+    }
+  },
+  "transmission_by_class": {
+    "Compact": "unknown",
+    "Mid-size": "unknown",
+    "Large/SUV": "unknown"
+  }
+}

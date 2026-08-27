@@ -1,0 +1,26 @@
+[
+  {
+    "feature_set": "F1_distance_only",
+    "skill": -0.51
+  },
+  {
+    "feature_set": "F2_route_geometry",
+    "skill": 0.1574
+  },
+  {
+    "feature_set": "F3_road_context",
+    "skill": 0.1823
+  },
+  {
+    "feature_set": "F4_scenario_a",
+    "skill": 0.5791
+  },
+  {
+    "feature_set": "F5_plus_speed",
+    "skill": 0.6691
+  },
+  {
+    "feature_set": "F6_scenario_b",
+    "skill": 0.6709
+  }
+]

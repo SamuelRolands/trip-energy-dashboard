@@ -1,0 +1,30 @@
+{
+  "ICE": {
+    "n_vehicles": 197,
+    "n_trips": 14456,
+    "mean_kwh": 4.571,
+    "median_kwh": 3.464,
+    "mean_distance_km": 5.1
+  },
+  "HEV": {
+    "n_vehicles": 90,
+    "n_trips": 9260,
+    "mean_kwh": 2.62,
+    "median_kwh": 2.07,
+    "mean_distance_km": 5.25
+  },
+  "PHEV": {
+    "n_vehicles": 24,
+    "n_trips": 3573,
+    "mean_kwh": 0.601,
+    "median_kwh": 0.423,
+    "mean_distance_km": 5.78
+  },
+  "EV": {
+    "n_vehicles": 3,
+    "n_trips": 485,
+    "mean_kwh": 0.756,
+    "median_kwh": 0.584,
+    "mean_distance_km": 4.81
+  }
+}

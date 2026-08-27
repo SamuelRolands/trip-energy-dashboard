@@ -1,0 +1,77 @@
+[
+  {
+    "feature": "distance_km",
+    "importance_mean": 0.7349,
+    "importance_std": 0.0057
+  },
+  {
+    "feature": "powertrain_type",
+    "importance_mean": 0.4215,
+    "importance_std": 0.012
+  },
+  {
+    "feature": "positive_ke_sum",
+    "importance_mean": 0.3188,
+    "importance_std": 0.0035
+  },
+  {
+    "feature": "duration_s",
+    "importance_mean": 0.2396,
+    "importance_std": 0.0061
+  },
+  {
+    "feature": "engine_displacement_l",
+    "importance_mean": 0.1415,
+    "importance_std": 0.0035
+  },
+  {
+    "feature": "engine_cylinders",
+    "importance_mean": 0.1119,
+    "importance_std": 0.0033
+  },
+  {
+    "feature": "elevation_gain_m",
+    "importance_mean": 0.0944,
+    "importance_std": 0.0024
+  },
+  {
+    "feature": "vehicle_weight_kg",
+    "importance_mean": 0.0598,
+    "importance_std": 0.0016
+  },
+  {
+    "feature": "harsh_decel_count",
+    "importance_mean": 0.0188,
+    "importance_std": 0.0008
+  },
+  {
+    "feature": "harsh_accel_count",
+    "importance_mean": 0.0121,
+    "importance_std": 0.0013
+  },
+  {
+    "feature": "elevation_loss_m",
+    "importance_mean": 0.0094,
+    "importance_std": 0.0011
+  },
+  {
+    "feature": "idle_time_s",
+    "importance_mean": 0.0078,
+    "importance_std": 0.0012
+  },
+  {
+    "feature": "speed_p25_kmh",
+    "importance_mean": 0.0052,
+    "importance_std": 0.0011
+  },
+  {
+    "feature": "gradient_mean",
+    "importance_mean": 0.0049,
+    "importance_std": 0.0002
+  },
+  {
+    "feature": "gradient_p10",
+    "importance_mean": 0.0042,
+    "importance_std": 0.0002
+  }
+]
