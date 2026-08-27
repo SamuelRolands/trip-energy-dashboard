@@ -55,12 +55,21 @@ def build_feature_vector(
     terrain: str,
     driving_style: str,
     feature_columns: list[str] | None = None,
+    terrain_override: dict | None = None,
 ) -> pd.DataFrame:
-    """Assemble one full 42-column feature row from the simplified inputs."""
+    """Assemble one full 42-column feature row from the simplified inputs.
+
+    `terrain_override` (elevation/gradient values computed from a real
+    routed path - see route_features.py) takes precedence over the
+    `terrain` preset when supplied, for map-based input. Road-context
+    values (speed limits, intersections) still come from the `route_type`
+    preset either way - those aren't derivable from a route alone.
+    """
     vehicle = PRESETS["vehicle"][vehicle_class]
     route = PRESETS["route"][route_type]
     terr = PRESETS["terrain"][terrain]
     style = PRESETS["style"][driving_style]
+    ov = terrain_override or {}
 
     avg_speed_kmh = style["avg_speed_kmh"]
     duration_min = (distance_km / avg_speed_kmh) * 60.0 if avg_speed_kmh > 0 else 10.0
@@ -68,13 +77,13 @@ def build_feature_vector(
 
     row = {
         "distance_km": distance_km,
-        "elevation_gain_m": terr["elevation_gain_m"],
-        "elevation_loss_m": terr["elevation_loss_m"],
-        "gradient_mean": terr["gradient_mean"],
-        "gradient_std": terr["gradient_std"],
-        "gradient_p10": terr["gradient_p10"],
-        "gradient_p90": terr["gradient_p90"],
-        "gradient_abs_mean": terr["gradient_abs_mean"],
+        "elevation_gain_m": ov.get("elevation_gain_m", terr["elevation_gain_m"]),
+        "elevation_loss_m": ov.get("elevation_loss_m", terr["elevation_loss_m"]),
+        "gradient_mean": ov.get("gradient_mean", terr["gradient_mean"]),
+        "gradient_std": ov.get("gradient_std", terr["gradient_std"]),
+        "gradient_p10": ov.get("gradient_p10", terr["gradient_p10"]),
+        "gradient_p90": ov.get("gradient_p90", terr["gradient_p90"]),
+        "gradient_abs_mean": ov.get("gradient_abs_mean", terr["gradient_abs_mean"]),
         "speed_limit_mean_kmh": route["speed_limit_mean_kmh"],
         "speed_limit_std_kmh": route["speed_limit_std_kmh"],
         "speed_limit_min_kmh": route["speed_limit_min_kmh"],
@@ -127,6 +136,7 @@ def predict(
     terrain: str,
     driving_style: str,
     model_choice: str = "extra_trees",
+    terrain_override: dict | None = None,
 ) -> dict:
     """Run a real prediction through a real trained model.
 
@@ -165,7 +175,7 @@ def predict(
     if model_choice == "physics_hybrid":
         X = build_feature_vector(
             powertrain, distance_km, vehicle_class, route_type, terrain, driving_style,
-            feature_columns=GREYBOX_FEATURE_COLUMNS,
+            feature_columns=GREYBOX_FEATURE_COLUMNS, terrain_override=terrain_override,
         )
         predicted_kwh = float(GREYBOX_MODEL.predict(X)[0])
         shares = greybox.physics_contribution_shares(GREYBOX_MODEL.physics_, X)
@@ -179,7 +189,10 @@ def predict(
             for _, row in shares.iterrows()
         ]
     else:
-        X = build_feature_vector(powertrain, distance_km, vehicle_class, route_type, terrain, driving_style)
+        X = build_feature_vector(
+            powertrain, distance_km, vehicle_class, route_type, terrain, driving_style,
+            terrain_override=terrain_override,
+        )
         predicted_kwh = float(MODEL.predict(X)[0])
         breakdown = None
 

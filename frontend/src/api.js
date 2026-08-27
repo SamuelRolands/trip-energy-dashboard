@@ -19,6 +19,7 @@ export const api = {
     client.get(`/api/sample-trips/${vehId}/${tripId}`).then((r) => r.data),
   inputOptions: () => client.get("/api/input-options").then((r) => r.data),
   predict: (payload) => client.post("/api/predict", payload).then((r) => r.data),
+  routeFeatures: (payload) => client.post("/api/route-features", payload).then((r) => r.data),
 };
 
 // A bright, saturated categorical palette (CVD-checked for separation and

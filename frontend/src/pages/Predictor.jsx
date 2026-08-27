@@ -2,6 +2,7 @@ import { useState } from "react";
 import { api, PALETTE, POWERTRAIN_COLOR, POWERTRAIN_TONE } from "../api";
 import Badge from "../components/Badge";
 import Chart from "../components/Chart";
+import RoutePicker from "../components/RoutePicker";
 import { useCountUp } from "../useCountUp";
 
 const POWERTRAINS = [
@@ -13,6 +14,10 @@ const POWERTRAINS = [
 const MODELS = [
   { code: "extra_trees", label: "Extra Trees (most accurate)" },
   { code: "physics_hybrid", label: "Physics-informed hybrid" },
+];
+const INPUT_MODES = [
+  { code: "manual", label: "Manual" },
+  { code: "map", label: "Use map" },
 ];
 const VEHICLE_CLASSES = ["Compact", "Mid-size", "Large/SUV"];
 const ROUTE_TYPES = ["Urban", "Mixed", "Highway"];
@@ -63,7 +68,9 @@ function PillSelect({ label, options, value, onChange }) {
 export default function Predictor() {
   const [powertrain, setPowertrain] = useState("ICE");
   const [modelChoice, setModelChoice] = useState("extra_trees");
+  const [inputMode, setInputMode] = useState("manual");
   const [distance, setDistance] = useState(10);
+  const [routeData, setRouteData] = useState(null);
   const [vehicleClass, setVehicleClass] = useState("Mid-size");
   const [routeType, setRouteType] = useState("Mixed");
   const [terrain, setTerrain] = useState("Rolling");
@@ -73,17 +80,37 @@ export default function Predictor() {
   const [error, setError] = useState(null);
 
   async function handlePredict() {
+    if (inputMode === "map" && !routeData) {
+      setError("Pick a start and destination point on the map first.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
       const data = await api.predict({
         powertrain,
-        distance_km: Number(distance),
+        distance_km: inputMode === "map" ? routeData.distance_km : Number(distance),
         vehicle_class: vehicleClass,
-        route_type: routeType,
+        // Road-context detail (speed limits, intersections) isn't derivable
+        // from a route alone, so map mode keeps a neutral "Mixed" assumption
+        // for it - see RoutePicker's note to the user.
+        route_type: inputMode === "map" ? "Mixed" : routeType,
         terrain,
         driving_style: style,
         model: modelChoice,
+        ...(inputMode === "map"
+          ? {
+              terrain_override: {
+                elevation_gain_m: routeData.elevation_gain_m,
+                elevation_loss_m: routeData.elevation_loss_m,
+                gradient_mean: routeData.gradient_mean,
+                gradient_std: routeData.gradient_std,
+                gradient_p10: routeData.gradient_p10,
+                gradient_p90: routeData.gradient_p90,
+                gradient_abs_mean: routeData.gradient_abs_mean,
+              },
+            }
+          : {}),
       });
       setResult(data);
     } catch (e) {
@@ -117,18 +144,29 @@ export default function Predictor() {
             <PillSelect label="Model" options={MODELS} value={modelChoice} onChange={setModelChoice} />
           )}
 
-          <div className="field">
-            <label className="field-label">Trip distance — {distance} km</label>
-            <input
-              type="range" min="1" max="100" step="1"
-              value={distance} onChange={(e) => setDistance(e.target.value)}
-              className="slider"
-            />
-          </div>
+          <PillSelect label="Trip details" options={INPUT_MODES} value={inputMode} onChange={setInputMode} />
+
+          {inputMode === "manual" ? (
+            <>
+              <div className="field">
+                <label className="field-label">Trip distance — {distance} km</label>
+                <input
+                  type="range" min="1" max="100" step="1"
+                  value={distance} onChange={(e) => setDistance(e.target.value)}
+                  className="slider"
+                />
+              </div>
+              <PillSelect label="Route type" options={ROUTE_TYPES} value={routeType} onChange={setRouteType} />
+              <PillSelect label="Terrain" options={TERRAINS} value={terrain} onChange={setTerrain} />
+            </>
+          ) : (
+            <div className="field">
+              <label className="field-label">Route</label>
+              <RoutePicker onRouteComputed={setRouteData} onClear={() => setRouteData(null)} />
+            </div>
+          )}
 
           <PillSelect label="Vehicle class" options={VEHICLE_CLASSES} value={vehicleClass} onChange={setVehicleClass} />
-          <PillSelect label="Route type" options={ROUTE_TYPES} value={routeType} onChange={setRouteType} />
-          <PillSelect label="Terrain" options={TERRAINS} value={terrain} onChange={setTerrain} />
           <PillSelect label="Driving style" options={STYLES} value={style} onChange={setStyle} />
 
           <button className="btn btn-primary predict-btn" onClick={handlePredict} disabled={loading}>

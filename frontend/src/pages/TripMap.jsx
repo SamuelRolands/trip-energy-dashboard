@@ -76,10 +76,11 @@ export default function TripMap() {
                 scrollWheelZoom={false}
                 style={{ height: "420px", width: "100%", borderRadius: "12px" }}
                 key={`${detail.veh_id}-${detail.trip_id}`}
+                className="dark-tiles"
               >
                 <TileLayer
-                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                  attribution='&copy; OpenStreetMap &copy; CARTO'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; OpenStreetMap contributors'
                 />
                 <Polyline positions={path} pathOptions={{ color, weight: 4, opacity: 0.85 }} />
                 <CircleMarker center={path[0]} radius={6} pathOptions={{ color: "#34a853", fillColor: "#34a853", fillOpacity: 1 }} />
@@ -151,6 +152,9 @@ export default function TripMap() {
 
       <style>{`
         .page-wide { max-width: 1180px; }
+        .dark-tiles .leaflet-tile {
+          filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9) saturate(0.7);
+        }
         .trip-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; margin-top: 28px; }
         .trip-list { display: flex; flex-direction: column; gap: 18px; }
         .trip-group-label { font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 6px 4px; }

@@ -12,11 +12,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import requests
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from . import model_service
+from . import model_service, route_features
 
 DATA_DIR = Path(__file__).parent / "data"
 
@@ -91,6 +92,16 @@ def sample_trip_detail(veh_id: int, trip_id: int):
     raise HTTPException(status_code=404, detail="Trip not found")
 
 
+class TerrainOverride(BaseModel):
+    elevation_gain_m: float
+    elevation_loss_m: float
+    gradient_mean: float
+    gradient_std: float
+    gradient_p10: float
+    gradient_p90: float
+    gradient_abs_mean: float
+
+
 class PredictRequest(BaseModel):
     powertrain: str = Field(pattern="^(ICE|HEV|PHEV|EV)$")
     distance_km: float = Field(gt=0, le=200)
@@ -99,6 +110,7 @@ class PredictRequest(BaseModel):
     terrain: str = Field(pattern="^(Flat|Rolling|Hilly)$")
     driving_style: str = Field(pattern="^(Calm|Normal|Spirited)$")
     model: str = Field(default="extra_trees", pattern="^(extra_trees|physics_hybrid)$")
+    terrain_override: TerrainOverride | None = None
 
 
 @app.post("/api/predict")
@@ -110,6 +122,9 @@ def predict(request: PredictRequest):
     `model` selects Extra Trees (default, strongest overall) or the
     physics-informed grey-box hybrid (slightly less accurate, but returns
     an inspectable breakdown of five physical energy mechanisms).
+    `terrain_override`, when supplied by the map input (see
+    /api/route-features), replaces the elevation/gradient values the
+    `terrain` preset would otherwise provide.
     """
     return model_service.predict(
         powertrain=request.powertrain,
@@ -119,7 +134,35 @@ def predict(request: PredictRequest):
         terrain=request.terrain,
         driving_style=request.driving_style,
         model_choice=request.model,
+        terrain_override=request.terrain_override.model_dump() if request.terrain_override else None,
     )
+
+
+class RouteFeaturesRequest(BaseModel):
+    start_lat: float = Field(ge=-90, le=90)
+    start_lon: float = Field(ge=-180, le=180)
+    end_lat: float = Field(ge=-90, le=90)
+    end_lon: float = Field(ge=-180, le=180)
+
+
+@app.post("/api/route-features")
+def route_features_endpoint(request: RouteFeaturesRequest):
+    """Compute real routed distance and elevation/gradient profile between
+    two map points, via OSRM (routing) and Open-Elevation (elevation) -
+    both free, third-party, public services. See route_features.py for
+    exactly what is and isn't derived this way.
+    """
+    try:
+        return route_features.compute_route_features(
+            request.start_lat, request.start_lon, request.end_lat, request.end_lon
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except requests.RequestException:
+        raise HTTPException(
+            status_code=503,
+            detail="Routing or elevation service is unavailable right now. Please try again.",
+        )
 
 
 @app.get("/api/input-options")
