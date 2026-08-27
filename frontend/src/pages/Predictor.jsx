@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { api, POWERTRAIN_COLOR } from "../api";
+import { api, POWERTRAIN_COLOR, POWERTRAIN_TONE } from "../api";
 import Badge from "../components/Badge";
 import Chart from "../components/Chart";
+import { useCountUp } from "../useCountUp";
 
 const POWERTRAINS = [
   { code: "ICE", label: "Petrol (ICE)" },
@@ -70,19 +71,23 @@ export default function Predictor() {
   }
 
   const color = POWERTRAIN_COLOR[powertrain];
+  const animatedValue = useCountUp(
+    result?.mode === "prediction" ? result.predicted_kwh : 0,
+    { decimals: 3, duration: 800 }
+  );
 
   return (
     <main className="page">
-      <p className="eyebrow">Trip predictor</p>
-      <h1 className="page-title">Predict a trip's energy consumption</h1>
-      <p className="page-subtitle">
-        Choose a powertrain, describe the trip in plain terms, and get an estimate from
-        the actual trained model — not a lookup table. Route and vehicle presets below are
-        each grounded in real quantiles from the training data, not arbitrary defaults.
+      <p className="eyebrow rise-in">Trip predictor</p>
+      <h1 className="page-title rise-in" style={{ "--delay": "0.05s" }}>Predict a trip's energy consumption</h1>
+      <p className="page-subtitle rise-in" style={{ "--delay": "0.1s" }}>
+        Set a powertrain and describe the trip — GRADIA estimates its energy use in
+        real time, straight from the trained model. Every preset below is drawn
+        from real vehicles and real routes in the training fleet.
       </p>
 
       <div className="predictor-grid">
-        <div className="card card-pad">
+        <div className="card card-pad rise-in" style={{ "--delay": "0.15s" }}>
           <PillSelect label="Powertrain" options={POWERTRAINS} value={powertrain} onChange={setPowertrain} />
 
           <div className="field">
@@ -105,22 +110,22 @@ export default function Predictor() {
           {error && <p className="error-text">{error}</p>}
         </div>
 
-        <div className="card card-pad result-card">
+        <div className="card card-pad result-card rise-in" style={{ "--delay": "0.2s" }}>
           {!result && (
             <div className="result-empty">
-              <p>Set the trip details and press <strong>Predict</strong> to see the model's estimate.</p>
+              <p>Set the trip details and press <strong>Predict</strong> to see the estimate.</p>
             </div>
           )}
 
           {result && result.mode === "prediction" && (
             <>
-              <Badge tone={powertrain === "ICE" ? "blue" : "green"}>Live model prediction</Badge>
+              <Badge tone={POWERTRAIN_TONE[powertrain]}>Live model prediction</Badge>
               <p className="result-value" style={{ color }}>
-                {result.predicted_kwh} <span className="result-unit">kWh</span>
+                {animatedValue.toFixed(3)} <span className="result-unit">kWh</span>
               </p>
               <p className="result-range">
                 Likely range: {result.range_low_kwh} – {result.range_high_kwh} kWh
-                <span className="result-range-note"> (based on ±{result.known_mae_kwh} kWh known model error)</span>
+                <span className="result-range-note"> (±{result.known_mae_kwh} kWh typical error)</span>
               </p>
 
               <Chart
@@ -141,7 +146,7 @@ export default function Predictor() {
 
           {result && result.mode === "descriptive" && (
             <>
-              <Badge tone="orange">Fleet statistics — not a per-trip prediction</Badge>
+              <Badge tone="orange">Fleet statistics</Badge>
               <p className="result-explain">{result.reason}</p>
               <div className="result-stats">
                 <div>

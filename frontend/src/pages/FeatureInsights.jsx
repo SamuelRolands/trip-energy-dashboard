@@ -2,10 +2,6 @@ import { useEffect, useState } from "react";
 import { api, PALETTE } from "../api";
 import Chart from "../components/Chart";
 
-const GROUP_COLOR = {
-  distance_km: PALETTE.blue,
-};
-
 function familyOf(feature) {
   if (feature === "distance_km" || feature === "duration_s") return "Distance & duration";
   if (feature.startsWith("speed_")) return "Speed";
@@ -20,11 +16,10 @@ function familyOf(feature) {
 
 const FAMILY_COLOR = {
   "Distance & duration": PALETTE.blue,
-  Speed: PALETTE.green,
+  Speed: PALETTE.aqua,
   "Driving dynamics": PALETTE.orange,
-  Elevation: "#9b7ee8",
-  Vehicle: "#6b7488",
-  "Route geometry": "#4ac3c9",
+  Elevation: "#d55181",
+  Vehicle: PALETTE.grey,
 };
 
 function prettyFeature(f) {
@@ -47,16 +42,15 @@ export default function FeatureInsights() {
 
   return (
     <main className="page">
-      <p className="eyebrow">Explainability</p>
-      <h1 className="page-title">What drives the model's predictions</h1>
-      <p className="page-subtitle">
-        Permutation importance: each feature is shuffled and the model is re-scored — the
-        drop in accuracy is that feature's real contribution, measured directly rather than
-        assumed from its coefficient.
+      <p className="eyebrow rise-in">Explainability</p>
+      <h1 className="page-title rise-in" style={{ "--delay": "0.05s" }}>What drives the model's predictions</h1>
+      <p className="page-subtitle rise-in" style={{ "--delay": "0.1s" }}>
+        Each feature is shuffled and the model is re-scored — the resulting drop in
+        accuracy is that feature's real, measured contribution.
       </p>
 
       {importance && (
-        <div className="section">
+        <div className="section rise-in" style={{ "--delay": "0.15s" }}>
           <div className="card card-pad">
             <Chart
               data={[{
@@ -89,26 +83,25 @@ export default function FeatureInsights() {
         </div>
       )}
 
-      <div className="section">
+      <div className="section rise-in" style={{ "--delay": "0.3s" }}>
         <div className="section-header">
           <h2 className="section-title">Reading this chart</h2>
         </div>
         <div className="grid grid-2">
           <div className="card card-pad">
             <p className="feature-body">
-              <strong style={{ color: "var(--text)" }}>Distance dominates</strong> — which is
-              expected: energy use scales with distance in almost any powertrain. It's the
-              floor the model has to beat, which is exactly why every result on the
-              performance page is reported as skill <em>above</em> a distance-only baseline,
-              not as raw accuracy.
+              <strong style={{ color: "var(--text-primary)" }}>Distance leads, as expected</strong> —
+              energy use scales with distance in almost any powertrain. It's the floor
+              every model has to beat, which is why performance is always reported as
+              skill <em>above</em> a distance-only baseline, not as raw accuracy.
             </p>
           </div>
           <div className="card card-pad">
             <p className="feature-body">
-              <strong style={{ color: "var(--text)" }}>Everything else is the value-add</strong> —
-              speed, acceleration, elevation and road-context features are what let the model
-              tell apart two trips of the same distance that consume very different amounts
-              of energy: a flat highway cruise versus a stop-start hilly commute.
+              <strong style={{ color: "var(--text-primary)" }}>Everything else is the edge</strong> —
+              speed, acceleration, elevation, and road context are what separate two
+              trips of equal distance that use very different amounts of energy: a
+              flat highway cruise versus a stop-start hilly commute.
             </p>
           </div>
         </div>

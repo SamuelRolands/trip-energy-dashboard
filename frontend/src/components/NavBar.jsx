@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import Logo from "./Logo";
 
 const LINKS = [
   { to: "/", label: "Overview", end: true },
@@ -14,10 +15,10 @@ export default function NavBar() {
     <header className="navbar">
       <div className="navbar-inner">
         <div className="navbar-brand">
-          <span className="navbar-mark" />
+          <Logo size={32} />
           <div>
-            <div className="navbar-title">Trip Energy Predictor</div>
-            <div className="navbar-subtitle">ICE · HEV · PHEV · EV</div>
+            <div className="navbar-title">GRADIA</div>
+            <div className="navbar-subtitle">Predict the Mile Ahead</div>
           </div>
         </div>
         <nav className="navbar-links">
@@ -57,17 +58,10 @@ export default function NavBar() {
           align-items: center;
           gap: 12px;
         }
-        .navbar-mark {
-          width: 32px;
-          height: 32px;
-          border-radius: 9px;
-          background: linear-gradient(135deg, var(--blue), var(--green));
-          flex-shrink: 0;
-        }
         .navbar-title {
-          font-weight: 700;
-          font-size: 14.5px;
-          letter-spacing: -0.01em;
+          font-weight: 800;
+          font-size: 15.5px;
+          letter-spacing: 0.02em;
         }
         .navbar-subtitle {
           font-size: 11px;
@@ -94,7 +88,7 @@ export default function NavBar() {
         }
         .navbar-link.active {
           color: var(--blue);
-          background: rgba(91,141,239,0.1);
+          background: rgba(57,135,229,0.12);
         }
         @media (max-width: 900px) {
           .navbar-inner { flex-direction: column; align-items: flex-start; padding: 14px 18px; }

@@ -21,11 +21,15 @@ export const api = {
   predict: (payload) => client.post("/api/predict", payload).then((r) => r.data),
 };
 
+// A validated categorical palette (CVD-checked against this app's dark
+// surface via the dataviz skill's validator) - fixed assignment, never
+// reshuffled: ICE=blue, HEV=aqua, PHEV=amber, EV=green.
 export const PALETTE = {
-  blue: "#5b8def",
-  green: "#4cc38a",
-  orange: "#f0a35e",
-  red: "#ef6a6a",
+  blue: "#3987e5",
+  aqua: "#199e70",
+  orange: "#c98500",
+  green: "#008300",
+  red: "#e66767",
   grey: "#6b7488",
   text: "#eef1f6",
   textSecondary: "#a3adc2",
@@ -36,7 +40,14 @@ export const PALETTE = {
 
 export const POWERTRAIN_COLOR = {
   ICE: PALETTE.blue,
-  HEV: PALETTE.green,
+  HEV: PALETTE.aqua,
   PHEV: PALETTE.orange,
-  EV: PALETTE.red,
+  EV: PALETTE.green,
+};
+
+export const POWERTRAIN_TONE = {
+  ICE: "blue",
+  HEV: "aqua",
+  PHEV: "orange",
+  EV: "green",
 };

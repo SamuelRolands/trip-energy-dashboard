@@ -28,15 +28,14 @@ const STEPS = [
 export default function About() {
   return (
     <main className="page">
-      <p className="eyebrow">About this project</p>
-      <h1 className="page-title">Why this exists, and how it was built</h1>
-      <p className="page-subtitle">
-        Fleet operators typically learn how much energy a trip used only after it's over.
-        This project asks whether that number can be predicted reliably beforehand — using
-        nothing but the kind of route and vehicle information a fleet manager already has.
+      <p className="eyebrow rise-in">About</p>
+      <h1 className="page-title rise-in" style={{ "--delay": "0.05s" }}>Why GRADIA exists, and how it was built</h1>
+      <p className="page-subtitle rise-in" style={{ "--delay": "0.1s" }}>
+        Fleet operators usually learn a trip's energy cost after it's over. GRADIA
+        predicts it beforehand, from the route and vehicle information already on hand.
       </p>
 
-      <div className="section">
+      <div className="section rise-in" style={{ "--delay": "0.15s" }}>
         <div className="section-header">
           <h2 className="section-title">The dataset</h2>
         </div>
@@ -66,7 +65,7 @@ export default function About() {
         </p>
       </div>
 
-      <div className="section">
+      <div className="section rise-in" style={{ "--delay": "0.2s" }}>
         <div className="section-header">
           <h2 className="section-title">How the model was built</h2>
         </div>
@@ -83,10 +82,10 @@ export default function About() {
         </div>
       </div>
 
-      <div className="section">
+      <div className="section rise-in" style={{ "--delay": "0.25s" }}>
         <div className="section-header">
-          <h2 className="section-title">Where this falls short — on purpose, said plainly</h2>
-          <p className="section-note">A model is only trustworthy if its limits are stated as clearly as its results.</p>
+          <h2 className="section-title">Known limits</h2>
+          <p className="section-note">A model is only trustworthy if its limits are as clear as its results.</p>
         </div>
         <div className="grid grid-3">
           {LIMITATIONS.map((l) => (
@@ -98,15 +97,14 @@ export default function About() {
         </div>
       </div>
 
-      <div className="section">
+      <div className="section rise-in" style={{ "--delay": "0.3s" }}>
         <div className="section-header">
           <h2 className="section-title">Built with</h2>
         </div>
         <p className="about-body">
-          Python, scikit-learn and pandas for the modelling pipeline; FastAPI for the API
-          serving live predictions from the trained model; React, Vite and Plotly for this
-          dashboard. Every chart and prediction on this site is generated from the actual
-          trained model and real held-out trip data — nothing here is mocked or illustrative.
+          Python, scikit-learn, and pandas for the model; FastAPI for the live prediction
+          API; React, Vite, and Plotly for this dashboard. Every chart and prediction here
+          draws directly from the trained model and real held-out trip data.
         </p>
       </div>
 

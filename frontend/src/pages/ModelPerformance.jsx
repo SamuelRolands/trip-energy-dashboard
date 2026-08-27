@@ -37,16 +37,16 @@ export default function ModelPerformance() {
 
   return (
     <main className="page">
-      <p className="eyebrow">Validation</p>
-      <h1 className="page-title">Model performance</h1>
-      <p className="page-subtitle">
-        Every model was compared under identical conditions — 10-fold, vehicle-grouped
-        cross-validation on 230 training vehicles — before the strongest candidates were
-        tested exactly once on 57 vehicles held back from the entire process.
+      <p className="eyebrow rise-in">Validation</p>
+      <h1 className="page-title rise-in" style={{ "--delay": "0.05s" }}>Model performance</h1>
+      <p className="page-subtitle rise-in" style={{ "--delay": "0.1s" }}>
+        Every model faced the same test: 10-fold, vehicle-grouped cross-validation
+        on 230 training vehicles, then a single pass against 57 vehicles held back
+        from the entire process.
       </p>
 
       {progression && (
-        <div className="section">
+        <div className="section rise-in" style={{ "--delay": "0.15s" }}>
           <div className="section-header">
             <h2 className="section-title">What each feature family is worth</h2>
             <p className="section-note">Skill vs. a distance-only baseline · Extra Trees</p>
@@ -57,7 +57,7 @@ export default function ModelPerformance() {
                 type: "bar",
                 x: progression.map((p) => FS_LABEL[p.feature_set] || p.feature_set),
                 y: progression.map((p) => p.skill),
-                marker: { color: progression.map((p) => (p.skill >= 0 ? "#5b8def" : "#ef6a6a")) },
+                marker: { color: progression.map((p) => (p.skill >= 0 ? "#3987e5" : "#e66767")) },
                 text: progression.map((p) => p.skill.toFixed(2)),
                 textposition: "outside",
                 textfont: { color: "#a3adc2" },
@@ -69,7 +69,7 @@ export default function ModelPerformance() {
       )}
 
       {cv && (
-        <div className="section">
+        <div className="section rise-in" style={{ "--delay": "0.2s" }}>
           <div className="section-header">
             <h2 className="section-title">Cross-validation comparison</h2>
             <p className="section-note">All 8 models · full feature set · 230 vehicles</p>
@@ -96,7 +96,7 @@ export default function ModelPerformance() {
       )}
 
       {final && (
-        <div className="section">
+        <div className="section rise-in" style={{ "--delay": "0.25s" }}>
           <div className="section-header">
             <h2 className="section-title">Final held-out test</h2>
             <p className="section-note">57 vehicles never used in training or model selection</p>

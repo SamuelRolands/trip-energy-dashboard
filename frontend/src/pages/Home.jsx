@@ -3,52 +3,108 @@ import { Link } from "react-router-dom";
 import { api } from "../api";
 import Kpi from "../components/Kpi";
 import Badge from "../components/Badge";
+import Chart from "../components/Chart";
+import { useCountUp } from "../useCountUp";
+
+const FS_LABEL = {
+  F1_distance_only: "F1",
+  F2_route_geometry: "F2",
+  F3_road_context: "F3",
+  F4_scenario_a: "F4",
+  F5_plus_speed: "F5",
+  F6_scenario_b: "F6",
+};
+
+function AnimatedKpi({ label, value, decimals = 0, suffix = "", sub, color }) {
+  const n = useCountUp(typeof value === "number" ? value : 0, { decimals, duration: 900 });
+  return (
+    <Kpi
+      label={label}
+      value={typeof value === "number" ? `${n}${suffix}` : "—"}
+      sub={sub}
+      color={color}
+    />
+  );
+}
 
 export default function Home() {
   const [finalResults, setFinalResults] = useState(null);
+  const [progression, setProgression] = useState(null);
 
   useEffect(() => {
     api.finalResults().then(setFinalResults).catch(() => {});
+    api.skillProgression().then(setProgression).catch(() => {});
   }, []);
 
   const best = finalResults?.find((r) => r.model === "extra_trees");
   const baseline = finalResults?.find((r) => r.model === "distance_only_baseline");
-  const reduction =
-    best && baseline ? (100 * (1 - best.MAE / baseline.MAE)).toFixed(1) : "60.6";
+  const reduction = best && baseline ? 100 * (1 - best.MAE / baseline.MAE) : 60.6;
 
   return (
     <main className="page">
-      <div className="hero">
-        <Badge tone="blue">Live model · 384 vehicles · 22.4M readings</Badge>
-        <h1 className="hero-title">
-          Predict trip energy consumption<br />before the trip happens.
-        </h1>
-        <p className="hero-lede">
-          A machine learning system trained on a full year of real telematics data,
-          validated on 57 vehicles it never saw during training, covering petrol,
-          hybrid, plug-in hybrid, and fully electric fleets.
-        </p>
-        <div className="hero-actions">
-          <Link to="/predict" className="btn btn-primary">Try the predictor →</Link>
-          <Link to="/performance" className="btn btn-secondary">See the validation</Link>
+      <div className="hero-wrap">
+        <div className="hero-glow" aria-hidden="true" />
+        <div className="hero-grid">
+          <div className="hero">
+            <Badge tone="blue">Live model · 384 vehicles · 22.4M readings</Badge>
+            <h1 className="hero-title rise-in" style={{ "--delay": "0.05s" }}>
+              See a trip's energy cost<br />before you drive it.
+            </h1>
+            <p className="hero-lede rise-in" style={{ "--delay": "0.1s" }}>
+              GRADIA is trained on a full year of real telematics data and validated
+              on 57 vehicles it never saw during training — across petrol, hybrid,
+              plug-in hybrid, and electric fleets.
+            </p>
+            <div className="hero-actions rise-in" style={{ "--delay": "0.15s" }}>
+              <Link to="/predict" className="btn btn-primary">Try the predictor →</Link>
+              <Link to="/performance" className="btn btn-secondary">See the validation</Link>
+            </div>
+          </div>
+
+          <div className="hero-chart card card-pad rise-in" style={{ "--delay": "0.2s" }}>
+            <p className="hero-chart-label">Skill by feature family</p>
+            {progression && (
+              <Chart
+                data={[{
+                  type: "bar",
+                  x: progression.map((p) => FS_LABEL[p.feature_set] || p.feature_set),
+                  y: progression.map((p) => p.skill),
+                  marker: { color: progression.map((p) => (p.skill >= 0 ? "#3987e5" : "#e66767")) },
+                  hovertemplate: "%{x}: %{y:.2f}<extra></extra>",
+                }]}
+                layout={{
+                  margin: { t: 10, r: 10, b: 30, l: 36 },
+                  height: 200,
+                  yaxis: { title: "" },
+                }}
+                style={{ height: 200 }}
+                config={{ displayModeBar: false }}
+              />
+            )}
+            <p className="hero-chart-note">Distance alone → the full model, one feature family at a time.</p>
+          </div>
         </div>
       </div>
 
       <div className="section">
         <div className="grid grid-4">
-          <Kpi
+          <AnimatedKpi
             label="Error reduction"
-            value={`${reduction}%`}
+            value={reduction}
+            decimals={1}
+            suffix="%"
             sub="vs. a distance-only baseline"
-            color="var(--green)"
+            color="var(--aqua)"
           />
-          <Kpi
+          <AnimatedKpi
             label="Final MAE"
-            value={best ? `${best.MAE.toFixed(2)} kWh` : "—"}
+            value={best ? best.MAE : null}
+            decimals={2}
+            suffix=" kWh"
             sub="on 57 unseen vehicles"
           />
-          <Kpi label="Models compared" value="8" sub="across 6 feature sets, 480 fits" />
-          <Kpi label="Powertrains covered" value="4" sub="ICE · HEV · PHEV · EV" />
+          <AnimatedKpi label="Models compared" value={8} sub="across 6 feature sets, 480 fits" />
+          <AnimatedKpi label="Powertrains covered" value={4} sub="ICE · HEV · PHEV · EV" />
         </div>
       </div>
 
@@ -61,20 +117,20 @@ export default function Home() {
             {
               tone: "blue",
               title: "Vehicle-grouped testing",
-              body: "The model is tested on vehicles it has never encountered — not just trips it hasn't seen from a car it already knows.",
+              body: "GRADIA is tested on vehicles it has never encountered — not just trips it hasn't seen from a car it already knows.",
             },
             {
-              tone: "green",
+              tone: "aqua",
               title: "A rebuilt, validated target",
               body: "The dataset's own built-in energy figure was reverse-engineered, found to contain calculation defects, and rebuilt from raw sensors.",
             },
             {
               tone: "orange",
               title: "Honest about limitations",
-              body: "Plug-in hybrid and electric vehicle results are reported separately and conservatively — not folded into one flattering headline number.",
+              body: "Plug-in hybrid and electric vehicle results are reported separately and conservatively — never folded into one flattering headline number.",
             },
-          ].map((c) => (
-            <div className="card card-pad" key={c.title}>
+          ].map((c, i) => (
+            <div className="card card-pad rise-in" style={{ "--delay": `${0.05 * i}s` }} key={c.title}>
               <Badge tone={c.tone}>{c.title}</Badge>
               <p className="feature-body">{c.body}</p>
             </div>
@@ -83,7 +139,35 @@ export default function Home() {
       </div>
 
       <style>{`
-        .hero { padding: 56px 0 40px; max-width: 720px; }
+        .hero-wrap { position: relative; overflow: hidden; margin: 0 -32px; padding: 0 32px; }
+        .hero-glow {
+          position: absolute;
+          inset: -20% -10% auto -10%;
+          height: 480px;
+          pointer-events: none;
+          z-index: 0;
+          background:
+            radial-gradient(420px 280px at 12% 25%, rgba(57,135,229,0.20), transparent 70%),
+            radial-gradient(380px 260px at 82% 15%, rgba(25,158,112,0.16), transparent 70%);
+          animation: drift 18s ease-in-out infinite alternate;
+        }
+        @keyframes drift {
+          from { transform: translate(0, 0) scale(1); }
+          to   { transform: translate(2%, 3%) scale(1.05); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-glow { animation: none; }
+        }
+        .hero-grid {
+          position: relative;
+          z-index: 1;
+          display: grid;
+          grid-template-columns: 1.15fr 0.85fr;
+          gap: 32px;
+          align-items: center;
+          padding: 56px 0 40px;
+        }
+        .hero { max-width: 620px; }
         .hero-title {
           font-size: 42px;
           font-weight: 800;
@@ -98,6 +182,14 @@ export default function Home() {
           margin: 0 0 28px;
         }
         .hero-actions { display: flex; gap: 12px; }
+        .hero-chart-label {
+          font-size: 12.5px; font-weight: 600; color: var(--text-muted);
+          text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px;
+        }
+        .hero-chart-note { font-size: 12px; color: var(--text-muted); margin: 8px 0 0; }
+        @media (max-width: 900px) {
+          .hero-grid { grid-template-columns: 1fr; padding: 40px 0 32px; }
+        }
         @media (max-width: 640px) {
           .hero-title { font-size: 30px; }
         }

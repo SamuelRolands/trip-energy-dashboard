@@ -14,25 +14,31 @@
   --text-secondary: #a3adc2;
   --text-muted: #6b7488;
 
-  /* Accent palette - carried through from the project's own figures/PDF */
-  --blue: #5b8def;
-  --blue-dim: #3a5fa8;
-  --green: #4cc38a;
-  --green-dim: #2f7a58;
-  --orange: #f0a35e;
-  --orange-dim: #a8703f;
-  --red: #ef6a6a;
-  --red-dim: #a34848;
+  /* Accent palette - a validated categorical set (CVD-checked, 3:1+ against
+     this surface), not a default AI-dashboard blue/green/orange/red. Fixed
+     assignment, never reshuffled: ICE=blue, HEV=aqua, PHEV=amber, EV=green. */
+  --blue: #3987e5;
+  --blue-dim: #1c5cab;
+  --aqua: #199e70;
+  --aqua-dim: #0f6d4c;
+  --orange: #c98500;
+  --orange-dim: #8f5f00;
+  --green: #008300;
+  --green-dim: #005c00;
+  --red: #e66767;
+  --red-dim: #a83f3f;
 
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
 
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -8px rgba(0, 0, 0, 0.5);
-  --shadow-glow-blue: 0 0 0 1px rgba(91, 141, 239, 0.15), 0 8px 30px -10px rgba(91, 141, 239, 0.25);
+  --shadow-glow-blue: 0 0 0 1px rgba(57, 135, 229, 0.18), 0 8px 30px -10px rgba(57, 135, 229, 0.28);
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
@@ -59,7 +65,7 @@ a {
 }
 
 ::selection {
-  background: rgba(91, 141, 239, 0.3);
+  background: rgba(57, 135, 229, 0.3);
 }
 
 ::-webkit-scrollbar {
@@ -76,6 +82,22 @@ a {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border);
+}
+
+/* --- Motion --------------------------------------------------------- */
+/* One entrance animation, used everywhere something appears on load or
+   mount - cards, charts, KPIs. Staggered via --delay per element. Respects
+   reduced-motion. */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rise-in {
+  animation: rise-in 0.55s var(--ease-out) both;
+  animation-delay: var(--delay, 0s);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rise-in { animation: none; }
 }
 
 /* --- Shared primitives, used across every page --- */
@@ -115,6 +137,7 @@ a {
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
+  transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
 .card-pad {
@@ -179,6 +202,7 @@ a {
   letter-spacing: -0.02em;
   font-family: var(--font-mono);
   margin: 0;
+  font-variant-numeric: tabular-nums;
 }
 .kpi-sub {
   font-size: 13px;
@@ -202,14 +226,24 @@ a {
   height: 6px;
   border-radius: 50%;
 }
-.badge-blue { background: rgba(91,141,239,0.12); color: var(--blue); }
+.badge-blue { background: rgba(57,135,229,0.14); color: var(--blue); }
 .badge-blue .badge-dot { background: var(--blue); }
-.badge-green { background: rgba(76,195,138,0.12); color: var(--green); }
+.badge-aqua { background: rgba(25,158,112,0.16); color: #4fd8a8; }
+.badge-aqua .badge-dot { background: var(--aqua); }
+.badge-green { background: rgba(0,131,0,0.18); color: #4fbf4f; }
 .badge-green .badge-dot { background: var(--green); }
-.badge-orange { background: rgba(240,163,94,0.12); color: var(--orange); }
+.badge-orange { background: rgba(201,133,0,0.16); color: #e0a83d; }
 .badge-orange .badge-dot { background: var(--orange); }
-.badge-red { background: rgba(239,106,106,0.12); color: var(--red); }
+.badge-red { background: rgba(230,103,103,0.14); color: var(--red); }
 .badge-red .badge-dot { background: var(--red); }
+.badge-dot { animation: pulse-dot 2.4s ease-in-out infinite; }
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .badge-dot { animation: none; }
+}
 
 /* Buttons */
 .btn {
@@ -223,17 +257,19 @@ a {
   font-weight: 600;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: var(--font-sans);
+  transition: transform 0.15s var(--ease-out), box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
 .btn-primary {
   background: var(--blue);
   color: #fff;
 }
 .btn-primary:hover {
-  background: #6f9bf3;
+  background: #4f97ec;
   transform: translateY(-1px);
   box-shadow: var(--shadow-glow-blue);
+}
+.btn-primary:active {
+  transform: translateY(0);
 }
 .btn-secondary {
   background: var(--bg-2);
@@ -242,6 +278,7 @@ a {
 }
 .btn-secondary:hover {
   background: var(--bg-3);
+  border-color: var(--blue-dim);
 }
 .btn:disabled {
   opacity: 0.5;
@@ -291,16 +328,17 @@ a {
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: transform 0.12s var(--ease-out), border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
 .pill:hover {
   border-color: var(--blue-dim);
   color: var(--text-primary);
+  transform: translateY(-1px);
 }
 .pill.active {
-  background: rgba(91,141,239,0.14);
+  background: rgba(57,135,229,0.16);
   border-color: var(--blue);
-  color: var(--blue);
+  color: #8fb8f0;
 }
 
 table.data-table {
@@ -323,6 +361,7 @@ table.data-table td {
   border-bottom: 1px solid var(--border-soft);
   font-family: var(--font-mono);
   color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
 }
 table.data-table td:first-child, table.data-table th:first-child {
   font-family: var(--font-sans);

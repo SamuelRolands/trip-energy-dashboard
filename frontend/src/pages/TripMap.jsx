@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Polyline, CircleMarker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { api, POWERTRAIN_COLOR } from "../api";
+import { api, POWERTRAIN_COLOR, POWERTRAIN_TONE } from "../api";
 import Badge from "../components/Badge";
 import Chart from "../components/Chart";
 
@@ -35,21 +35,21 @@ export default function TripMap() {
 
   const path = detail?.path?.map(([lat, lon]) => [lat, lon]);
   const center = path && path.length ? path[Math.floor(path.length / 2)] : [42.28, -83.74];
-  const color = detail ? POWERTRAIN_COLOR[detail.powertrain] : "#5b8def";
+  const color = detail ? POWERTRAIN_COLOR[detail.powertrain] : "#3987e5";
 
   return (
     <main className="page page-wide">
-      <p className="eyebrow">Real trips, real routes</p>
-      <h1 className="page-title">Predicted vs. actual, on the map</h1>
-      <p className="page-subtitle">
-        12 real trips pulled from the 57 held-out test vehicles — never seen during training.
-        For petrol and hybrid vehicles the model's prediction is compared against what the
-        vehicle's own sensors actually recorded. Plug-in hybrid and electric trips are shown
-        against the fleet average instead, since no reliable per-trip model exists for them.
+      <p className="eyebrow rise-in">Real trips, real routes</p>
+      <h1 className="page-title rise-in" style={{ "--delay": "0.05s" }}>Predicted vs. actual, on the map</h1>
+      <p className="page-subtitle rise-in" style={{ "--delay": "0.1s" }}>
+        12 real trips from 57 vehicles the model has never seen. Petrol and hybrid
+        predictions are checked against what each vehicle's sensors actually
+        recorded; plug-in hybrid and electric trips are shown against the fleet
+        average, since a reliable per-trip model isn't available for them yet.
       </p>
 
       <div className="trip-layout">
-        <div className="trip-list">
+        <div className="trip-list rise-in" style={{ "--delay": "0.15s" }}>
           {POWERTRAINS.map((pt) => (
             <div key={pt} className="trip-group">
               <p className="trip-group-label" style={{ color: POWERTRAIN_COLOR[pt] }}>{pt}</p>
@@ -68,7 +68,7 @@ export default function TripMap() {
         </div>
 
         <div className="trip-main">
-          <div className="card map-card">
+          <div className="card map-card rise-in" style={{ "--delay": "0.2s" }}>
             {path && (
               <MapContainer
                 center={center}
@@ -82,16 +82,16 @@ export default function TripMap() {
                   attribution='&copy; OpenStreetMap &copy; CARTO'
                 />
                 <Polyline positions={path} pathOptions={{ color, weight: 4, opacity: 0.85 }} />
-                <CircleMarker center={path[0]} radius={6} pathOptions={{ color: "#4cc38a", fillColor: "#4cc38a", fillOpacity: 1 }} />
-                <CircleMarker center={path[path.length - 1]} radius={6} pathOptions={{ color: "#ef6a6a", fillColor: "#ef6a6a", fillOpacity: 1 }} />
+                <CircleMarker center={path[0]} radius={6} pathOptions={{ color: "#008300", fillColor: "#008300", fillOpacity: 1 }} />
+                <CircleMarker center={path[path.length - 1]} radius={6} pathOptions={{ color: "#e66767", fillColor: "#e66767", fillOpacity: 1 }} />
               </MapContainer>
             )}
           </div>
 
           {detail && (
-            <div className="card card-pad trip-detail">
+            <div className="card card-pad trip-detail rise-in" style={{ "--delay": "0.25s" }} key={`${detail.veh_id}-${detail.trip_id}-detail`}>
               <div className="trip-detail-head">
-                <Badge tone={detail.powertrain === "ICE" ? "blue" : detail.powertrain === "HEV" ? "green" : detail.powertrain === "PHEV" ? "orange" : "red"}>
+                <Badge tone={POWERTRAIN_TONE[detail.powertrain]}>
                   {detail.powertrain} · Vehicle #{detail.veh_id} · Trip #{detail.trip_id}
                 </Badge>
                 <span className="trip-detail-meta">{detail.distance_km} km · {detail.duration_min} min</span>
@@ -118,7 +118,7 @@ export default function TripMap() {
                       {detail.error_kwh > 0 ? "+" : ""}{detail.error_kwh.toFixed(3)} kWh
                     </strong>
                     {detail.label === "long" && detail.powertrain === "HEV" && (
-                      <> — a genuine miss shown on purpose, not filtered out.</>
+                      <> — outside the model's typical error band.</>
                     )}
                   </p>
                 </>
@@ -139,8 +139,8 @@ export default function TripMap() {
                   />
                   <p className="trip-error-note">
                     {detail.actual_kwh < 0
-                      ? "This trip recorded net-negative battery draw — the vehicle recovered more energy (regenerative braking / downhill coasting) than it consumed. A genuine, unedited finding from Stage 9."
-                      : `No per-trip prediction is offered for ${detail.powertrain} — shown against the fleet average instead.`}
+                      ? "This trip shows net-negative energy — the vehicle recovered more through regenerative braking and downhill coasting than it consumed."
+                      : `${detail.powertrain} trips are shown against the fleet average — a per-trip model isn't available for them yet.`}
                   </p>
                 </>
               )}
@@ -157,9 +157,9 @@ export default function TripMap() {
         .trip-item {
           display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
           width: 100%; text-align: left; padding: 9px 12px; border-radius: 8px;
-          background: transparent; margin-bottom: 3px; transition: background 0.15s ease;
+          background: transparent; margin-bottom: 3px; transition: background 0.15s ease, transform 0.15s ease;
         }
-        .trip-item:hover { background: var(--bg-2); }
+        .trip-item:hover { background: var(--bg-2); transform: translateX(2px); }
         .trip-item.active { background: var(--bg-3); }
         .trip-item-label { font-size: 13px; font-weight: 600; color: var(--text-primary); }
         .trip-item-sub { font-size: 11.5px; color: var(--text-muted); font-family: var(--font-mono); }
