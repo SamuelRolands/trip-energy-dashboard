@@ -24,6 +24,37 @@ const FS_LABEL = {
   F6_scenario_b: "F6 · + Acceleration dynamics",
 };
 
+// One chart shape reused for both tables: every model ranked by skill, with
+// the other three metrics folded into the hover rather than crammed on
+// screen - readable at a glance, complete on demand.
+function SkillRankChart({ rows, skillKey, maeKey, rmseKey, r2Key }) {
+  const sorted = [...rows].sort((a, b) => b[skillKey] - a[skillKey]);
+  return (
+    <Chart
+      data={[{
+        type: "bar",
+        orientation: "h",
+        y: sorted.map((r) => PRETTY[r.model] || r.model),
+        x: sorted.map((r) => r[skillKey]),
+        marker: { color: sorted.map((r) => (r[skillKey] >= 0 ? "#4285f4" : "#ea4335")) },
+        text: sorted.map((r) => `${r[skillKey] > 0 ? "+" : ""}${r[skillKey].toFixed(2)}`),
+        textposition: "outside",
+        textfont: { color: "#a3adc2" },
+        customdata: sorted.map((r) => [r[maeKey], r[rmseKey], r[r2Key]]),
+        hovertemplate:
+          "<b>%{y}</b><br>Skill %{x:.3f}<br>MAE %{customdata[0]:.3f} kWh<br>" +
+          "RMSE %{customdata[1]:.3f} kWh<br>R² %{customdata[2]:.3f}<extra></extra>",
+      }]}
+      layout={{
+        height: 44 * sorted.length + 40,
+        margin: { t: 10, r: 60, b: 40, l: 176 },
+        xaxis: { title: "Skill vs. distance-only baseline" },
+      }}
+      style={{ height: 44 * sorted.length + 40 }}
+    />
+  );
+}
+
 export default function ModelPerformance() {
   const [cv, setCv] = useState(null);
   const [final, setFinal] = useState(null);
@@ -74,6 +105,15 @@ export default function ModelPerformance() {
             <h2 className="section-title">Cross-validation comparison</h2>
             <p className="section-note">All 8 models · full feature set · 230 vehicles</p>
           </div>
+          <div className="card card-pad" style={{ marginBottom: 16 }}>
+            <SkillRankChart
+              rows={cv}
+              skillKey="skill_vs_distance_mean"
+              maeKey="MAE_mean"
+              rmseKey="RMSE_mean"
+              r2Key="R2_mean"
+            />
+          </div>
           <div className="card">
             <table className="data-table">
               <thead>
@@ -100,6 +140,9 @@ export default function ModelPerformance() {
           <div className="section-header">
             <h2 className="section-title">Final held-out test</h2>
             <p className="section-note">57 vehicles never used in training or model selection</p>
+          </div>
+          <div className="card card-pad" style={{ marginBottom: 16 }}>
+            <SkillRankChart rows={final} skillKey="skill_vs_distance" maeKey="MAE" rmseKey="RMSE" r2Key="R2" />
           </div>
           <div className="card">
             <table className="data-table">

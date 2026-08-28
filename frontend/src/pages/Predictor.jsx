@@ -143,6 +143,7 @@ export default function Predictor() {
       ? result.predicted_kwh / result._distanceUsed
       : null;
   const deltaPct = fleetRate && thisRate ? ((thisRate - fleetRate) / fleetRate) * 100 : null;
+  const animatedRate = useCountUp(thisRate || 0, { decimals: 3, duration: 900 });
 
   return (
     <main className="page">
@@ -234,7 +235,7 @@ export default function Predictor() {
                     data={[{
                       type: "indicator",
                       mode: "gauge+number+delta",
-                      value: thisRate,
+                      value: animatedRate,
                       number: { suffix: " kWh/km", font: { size: 22, color: "#eef1f6" } },
                       delta: {
                         reference: fleetRate,
