@@ -77,10 +77,13 @@ export default function RoutePicker({ onRouteComputed, onClear }) {
           : "Route computed — click anywhere to start over."}
       </p>
       <div className="route-picker-map">
-        <MapContainer center={DEFAULT_CENTER} zoom={13} scrollWheelZoom={true} style={{ height: "280px", width: "100%", borderRadius: "12px" }} className="dark-tiles">
+        <MapContainer center={DEFAULT_CENTER} zoom={13} scrollWheelZoom={true} style={{ height: "280px", width: "100%", borderRadius: "12px" }}>
           <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; OpenStreetMap contributors'
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+            attribution='&copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
+          />
+          <TileLayer
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
           />
           <ClickHandler onClick={handleMapClick} />
           {start && <CircleMarker center={start} radius={7} pathOptions={{ color: "#34a853", fillColor: "#34a853", fillOpacity: 1 }} />}
@@ -123,9 +126,6 @@ export default function RoutePicker({ onRouteComputed, onClear }) {
       <style>{`
         .route-picker-hint { font-size: 13px; color: var(--text-secondary); margin: 0 0 10px; }
         .route-picker-map { border-radius: 12px; overflow: hidden; }
-        .dark-tiles .leaflet-tile {
-          filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9) saturate(0.7);
-        }
         .route-summary { display: flex; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
         .route-summary-item { display: flex; flex-direction: column; gap: 2px; }
         .route-summary-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }

@@ -29,6 +29,13 @@
   --red: #ea4335;
   --red-dim: #a52e25;
 
+  /* Same hues, lightened for use as small text on the dark surface - the
+     fill colours above read as dull at text weight/size (same reason the
+     badges use these exact values for their labels). Never used for fills,
+     markers, or swatches - those stay on the true palette above. */
+  --green-text: #6bcb84;
+  --orange-text: #fdd352;
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;

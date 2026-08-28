@@ -266,7 +266,7 @@ export default function Predictor() {
                   <p className="efficiency-note">
                     Grey line marks the {resultPowertrain} fleet average
                     ({fleetRate.toFixed(2)} kWh/km). This trip runs{" "}
-                    <strong style={{ color: deltaPct > 0 ? "var(--orange)" : "var(--green)" }}>
+                    <strong style={{ color: deltaPct > 0 ? "var(--orange-text)" : "var(--green-text)" }}>
                       {Math.abs(deltaPct).toFixed(0)}% {deltaPct > 0 ? "less" : "more"} efficient
                     </strong>.
                   </p>
