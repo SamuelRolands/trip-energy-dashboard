@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "../api";
+import { api, withAlpha } from "../api";
 import Chart from "../components/Chart";
 
 const PRETTY = {
@@ -29,6 +29,9 @@ const FS_LABEL = {
 // screen - readable at a glance, complete on demand.
 function SkillRankChart({ rows, skillKey, maeKey, rmseKey, r2Key }) {
   const sorted = [...rows].sort((a, b) => b[skillKey] - a[skillKey]);
+  // The leader stands out at full strength; the rest recede slightly - the
+  // same colour, just quieter, so the eye lands on the winner first.
+  const baseColors = sorted.map((r) => (r[skillKey] >= 0 ? "#4285f4" : "#ea4335"));
   return (
     <Chart
       data={[{
@@ -36,7 +39,10 @@ function SkillRankChart({ rows, skillKey, maeKey, rmseKey, r2Key }) {
         orientation: "h",
         y: sorted.map((r) => PRETTY[r.model] || r.model),
         x: sorted.map((r) => r[skillKey]),
-        marker: { color: sorted.map((r) => (r[skillKey] >= 0 ? "#4285f4" : "#ea4335")) },
+        marker: {
+          color: baseColors.map((c, i) => withAlpha(c, i === 0 ? 0.95 : 0.55)),
+          line: { color: baseColors, width: 1.5 },
+        },
         text: sorted.map((r) => `${r[skillKey] > 0 ? "+" : ""}${r[skillKey].toFixed(2)}`),
         textposition: "outside",
         textfont: { color: "#a3adc2" },
@@ -88,7 +94,10 @@ export default function ModelPerformance() {
                 type: "bar",
                 x: progression.map((p) => FS_LABEL[p.feature_set] || p.feature_set),
                 y: progression.map((p) => p.skill),
-                marker: { color: progression.map((p) => (p.skill >= 0 ? "#4285f4" : "#ea4335")) },
+                marker: {
+                  color: progression.map((p) => withAlpha(p.skill >= 0 ? "#4285f4" : "#ea4335", 0.85)),
+                  line: { color: progression.map((p) => (p.skill >= 0 ? "#4285f4" : "#ea4335")), width: 1.5 },
+                },
                 text: progression.map((p) => p.skill.toFixed(2)),
                 textposition: "outside",
                 textfont: { color: "#a3adc2" },

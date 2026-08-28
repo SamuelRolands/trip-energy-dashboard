@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api, PALETTE, POWERTRAIN_COLOR, POWERTRAIN_TONE } from "../api";
+import { api, PALETTE, POWERTRAIN_COLOR, POWERTRAIN_TONE, withAlpha } from "../api";
 import Badge from "../components/Badge";
 import Chart from "../components/Chart";
 import RoutePicker from "../components/RoutePicker";
@@ -220,7 +220,7 @@ export default function Predictor() {
                   orientation: "h",
                   y: ["This prediction"],
                   x: [result.predicted_kwh],
-                  marker: { color },
+                  marker: { color: withAlpha(color, 0.85), line: { color, width: 1.5 } },
                   error_x: { type: "data", array: [result.known_mae_kwh], color: "#a3adc2", thickness: 1.5, width: 4 },
                   hovertemplate: "%{x:.2f} kWh<extra></extra>",
                 }]}
@@ -250,9 +250,13 @@ export default function Predictor() {
                           tickcolor: "#6b7488",
                           tickfont: { color: "#6b7488", size: 10 },
                         },
-                        bar: { color },
+                        bar: { color: withAlpha(color, 0.88), line: { color, width: 1.5 } },
                         bgcolor: "transparent",
                         borderwidth: 0,
+                        steps: [
+                          { range: [0, fleetRate], color: withAlpha(color, 0.1) },
+                          { range: [fleetRate, Math.max(thisRate, fleetRate) * 1.5], color: withAlpha(color, 0.04) },
+                        ],
                         threshold: { line: { color: "#a3adc2", width: 3 }, thickness: 0.75, value: fleetRate },
                       },
                     }]}
@@ -277,7 +281,10 @@ export default function Predictor() {
                       <div
                         key={t.term}
                         className="comp-segment"
-                        style={{ flexGrow: Math.max(t.share, 0.004), background: PHYSICS_TERM_COLOR[t.term] }}
+                        style={{
+                          flexGrow: Math.max(t.share, 0.004),
+                          background: `linear-gradient(135deg, ${PHYSICS_TERM_COLOR[t.term]} 0%, ${withAlpha(PHYSICS_TERM_COLOR[t.term], 0.65)} 100%)`,
+                        }}
                         title={`${PHYSICS_TERM_LABEL[t.term]}: ${(t.share * 100).toFixed(1)}% (${t.kwh} kWh)`}
                       />
                     ))}

@@ -53,3 +53,13 @@ export const POWERTRAIN_TONE = {
   PHEV: "orange",
   EV: "green",
 };
+
+// Same hex, adjustable alpha - never a different shade, just translucency.
+// Used to add depth/emphasis to charts without touching the palette itself.
+export function withAlpha(hex, alpha) {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}

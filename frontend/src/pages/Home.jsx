@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api";
+import { api, withAlpha } from "../api";
 import Kpi from "../components/Kpi";
 import Badge from "../components/Badge";
 import Chart from "../components/Chart";
@@ -73,7 +73,10 @@ export default function Home() {
                   type: "bar",
                   x: progression.map((p) => FS_LABEL[p.feature_set] || p.feature_set),
                   y: progression.map((p) => p.skill),
-                  marker: { color: progression.map((p) => (p.skill >= 0 ? "#4285f4" : "#ea4335")) },
+                  marker: {
+                    color: progression.map((p) => withAlpha(p.skill >= 0 ? "#4285f4" : "#ea4335", 0.85)),
+                    line: { color: progression.map((p) => (p.skill >= 0 ? "#4285f4" : "#ea4335")), width: 1.5 },
+                  },
                   hovertemplate: "%{x}: %{y:.2f}<extra></extra>",
                 }]}
                 layout={{

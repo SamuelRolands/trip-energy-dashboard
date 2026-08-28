@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { api, PALETTE } from "../api";
+import { api, PALETTE, withAlpha } from "../api";
 import Chart from "../components/Chart";
 
 function familyOf(feature) {
@@ -87,7 +87,10 @@ export default function FeatureInsights() {
                 <div
                   key={c.family}
                   className="comp-segment"
-                  style={{ flexGrow: c.share, background: FAMILY_COLOR[c.family] }}
+                  style={{
+                    flexGrow: c.share,
+                    background: `linear-gradient(135deg, ${FAMILY_COLOR[c.family]} 0%, ${withAlpha(FAMILY_COLOR[c.family], 0.65)} 100%)`,
+                  }}
                   title={`${c.family}: ${pct(c.share)}`}
                 />
               ))}
@@ -119,7 +122,8 @@ export default function FeatureInsights() {
                 y: importance.map((f) => prettyFeature(f.feature)),
                 x: importance.map((f) => f.importance_mean),
                 marker: {
-                  color: importance.map((f) => FAMILY_COLOR[familyOf(f.feature)] || PALETTE.grey),
+                  color: importance.map((f) => withAlpha(FAMILY_COLOR[familyOf(f.feature)] || PALETTE.grey, 0.85)),
+                  line: { color: importance.map((f) => FAMILY_COLOR[familyOf(f.feature)] || PALETTE.grey), width: 1.5 },
                 },
                 text: importance.map((f) => f.importance_mean.toFixed(3)),
                 textposition: "outside",
