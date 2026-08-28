@@ -92,11 +92,6 @@ export default function ModelPerformance() {
               </tbody>
             </table>
           </div>
-          <p className="section-note" style={{ marginTop: 12 }}>
-            The physics-informed hybrid below isn't in this table because it didn't
-            exist yet — it was built afterward, specifically to challenge these
-            results' strongest performers, and is tested only against them.
-          </p>
         </div>
       )}
 
@@ -106,11 +101,6 @@ export default function ModelPerformance() {
             <h2 className="section-title">Final held-out test</h2>
             <p className="section-note">57 vehicles never used in training or model selection</p>
           </div>
-          <p className="section-note" style={{ marginBottom: 16 }}>
-            Only the CV leaders and the physics-informed hybrid earned a place here —
-            the sealed holdout gets touched once, so it's spent on genuine contenders,
-            not the full field of 8.
-          </p>
           <div className="card">
             <table className="data-table">
               <thead>
