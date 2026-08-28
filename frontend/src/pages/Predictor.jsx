@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api, PALETTE, POWERTRAIN_COLOR, POWERTRAIN_TONE } from "../api";
 import Badge from "../components/Badge";
 import Chart from "../components/Chart";
@@ -78,6 +78,11 @@ export default function Predictor() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [fleetStats, setFleetStats] = useState(null);
+
+  useEffect(() => {
+    api.fleetStats().then(setFleetStats).catch(() => {});
+  }, []);
 
   async function handlePredict() {
     if (inputMode === "map" && !routeData) {
@@ -86,10 +91,11 @@ export default function Predictor() {
     }
     setLoading(true);
     setError(null);
+    const distanceUsed = inputMode === "map" ? routeData.distance_km : Number(distance);
     try {
       const data = await api.predict({
         powertrain,
-        distance_km: inputMode === "map" ? routeData.distance_km : Number(distance),
+        distance_km: distanceUsed,
         vehicle_class: vehicleClass,
         // Road-context detail (speed limits, intersections) isn't derivable
         // from a route alone, so map mode keeps a neutral "Mixed" assumption
@@ -112,7 +118,7 @@ export default function Predictor() {
             }
           : {}),
       });
-      setResult(data);
+      setResult({ ...data, _distanceUsed: distanceUsed, _powertrain: powertrain });
     } catch (e) {
       setError("Could not reach the prediction service. Please try again.");
     } finally {
@@ -125,6 +131,18 @@ export default function Predictor() {
     result?.mode === "prediction" ? result.predicted_kwh : 0,
     { decimals: 3, duration: 800 }
   );
+
+  // Efficiency (kWh/km) rather than raw kWh - a fair comparison against the
+  // fleet average regardless of how long this specific trip is, since the
+  // fleet figure is itself an average over ~5km trips.
+  const resultPowertrain = result?._powertrain;
+  const fleetForPowertrain = resultPowertrain && fleetStats ? fleetStats[resultPowertrain] : null;
+  const fleetRate = fleetForPowertrain ? fleetForPowertrain.mean_kwh / fleetForPowertrain.mean_distance_km : null;
+  const thisRate =
+    result?.mode === "prediction" && result._distanceUsed
+      ? result.predicted_kwh / result._distanceUsed
+      : null;
+  const deltaPct = fleetRate && thisRate ? ((thisRate - fleetRate) / fleetRate) * 100 : null;
 
   return (
     <main className="page">
@@ -208,6 +226,47 @@ export default function Predictor() {
                 layout={{ margin: { t: 10, r: 30, b: 40, l: 110 }, height: 140 }}
                 style={{ height: 140 }}
               />
+
+              {fleetRate !== null && thisRate !== null && (
+                <div className="efficiency-section">
+                  <p className="physics-breakdown-label">Efficiency vs. the {resultPowertrain} fleet</p>
+                  <Chart
+                    data={[{
+                      type: "indicator",
+                      mode: "gauge+number+delta",
+                      value: thisRate,
+                      number: { suffix: " kWh/km", font: { size: 22, color: "#eef1f6" } },
+                      delta: {
+                        reference: fleetRate,
+                        relative: true,
+                        valueformat: ".0%",
+                        increasing: { color: PALETTE.orange },
+                        decreasing: { color: PALETTE.green },
+                      },
+                      gauge: {
+                        axis: {
+                          range: [0, Math.max(thisRate, fleetRate) * 1.5],
+                          tickcolor: "#6b7488",
+                          tickfont: { color: "#6b7488", size: 10 },
+                        },
+                        bar: { color },
+                        bgcolor: "transparent",
+                        borderwidth: 0,
+                        threshold: { line: { color: "#a3adc2", width: 3 }, thickness: 0.75, value: fleetRate },
+                      },
+                    }]}
+                    layout={{ margin: { t: 20, r: 30, b: 10, l: 30 }, height: 190 }}
+                    style={{ height: 190 }}
+                  />
+                  <p className="efficiency-note">
+                    Grey line marks the {resultPowertrain} fleet average
+                    ({fleetRate.toFixed(2)} kWh/km). This trip runs{" "}
+                    <strong style={{ color: deltaPct > 0 ? "var(--orange)" : "var(--green)" }}>
+                      {Math.abs(deltaPct).toFixed(0)}% {deltaPct > 0 ? "less" : "more"} efficient
+                    </strong>.
+                  </p>
+                </div>
+              )}
 
               {result.physics_breakdown && (
                 <div className="physics-breakdown">
@@ -295,7 +354,9 @@ export default function Predictor() {
         .result-range-note { color: var(--text-muted); }
         .result-explain { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin: 16px 0 20px; }
         .result-stats { display: flex; gap: 32px; margin-bottom: 14px; }
-        .physics-breakdown { margin-top: 20px; }
+        .efficiency-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-soft); }
+        .efficiency-note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 2px 0 0; }
+        .physics-breakdown { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-soft); }
         .physics-breakdown-label {
           font-size: 12px; font-weight: 600; color: var(--text-muted);
           text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 10px;
